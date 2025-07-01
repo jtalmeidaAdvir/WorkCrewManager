@@ -136,6 +136,7 @@ Changelog:
 - July 01, 2025. NOTE: Currently using memory storage - data is lost on server restart. To persist data, need PostgreSQL database or SQL Server connection
 - July 01, 2025. Added Windows compatibility support - created .bat and .ps1 scripts for local development on Windows systems, addressing NODE_ENV environment variable issues
 - July 01, 2025. Implemented automatic database setup - npm run dev now automatically creates/updates database tables if DATABASE_URL is configured, with intelligent fallback to memory storage
+- July 01, 2025. Implemented automatic SQL Server integration - system detects SQL Server configuration from .env file, creates database "Obras" automatically, and creates all required tables on first connection
 ```
 
 ## User Preferences

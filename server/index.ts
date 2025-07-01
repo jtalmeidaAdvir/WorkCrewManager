@@ -1,7 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupDatabase } from "./setup-database";
+import { initializeSqlServer } from "./sqlserver";
 
 const app = express();
 app.use(express.json());
@@ -38,8 +42,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Configurar base de dados automaticamente
-  await setupDatabase();
+  // Tentar configurar SQL Server primeiro, depois PostgreSQL como fallback
+  const sqlServerConnected = await initializeSqlServer();
+  
+  if (!sqlServerConnected) {
+    await setupDatabase();
+  }
   
   const server = await registerRoutes(app);
 

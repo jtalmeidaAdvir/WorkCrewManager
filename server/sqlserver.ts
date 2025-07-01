@@ -1,4 +1,4 @@
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 
 // SQL Server configuration and table creation
 let sqlServerPool: mssql.ConnectionPool | null = null;
@@ -8,14 +8,20 @@ export async function initializeSqlServer() {
     return false;
   }
 
-  const config: mssql.config = {
+  console.log("🔄 Configurando SQL Server...");
+  console.log(`📍 Servidor: ${process.env.DB_HOST}:${process.env.DB_PORT || '1433'}`);
+  console.log(`🏢 Base de dados: ${process.env.DB_NAME}`);
+  console.log(`👤 Utilizador: ${process.env.DB_USERNAME}`);
+
+  // First, connect without specifying database to create it if needed
+  const masterConfig: mssql.config = {
     server: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || '1433'),
-    database: process.env.DB_NAME,
+    database: 'master', // Connect to master database first
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     options: {
-      encrypt: false, // Use false for local SQL Server
+      encrypt: false,
       trustServerCertificate: true,
       enableArithAbort: true,
     },
@@ -27,14 +33,42 @@ export async function initializeSqlServer() {
   };
 
   try {
+    // Connect to master database to create target database if needed
+    console.log("🔗 Conectando ao SQL Server...");
+    const masterPool = new mssql.ConnectionPool(masterConfig);
+    await masterPool.connect();
+    
+    // Create database if it doesn't exist
+    const createDbQuery = `
+      IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '${process.env.DB_NAME}')
+      BEGIN
+        CREATE DATABASE [${process.env.DB_NAME}]
+        PRINT 'Base de dados ${process.env.DB_NAME} criada com sucesso!'
+      END
+      ELSE
+      BEGIN
+        PRINT 'Base de dados ${process.env.DB_NAME} já existe'
+      END
+    `;
+    
+    await masterPool.request().query(createDbQuery);
+    await masterPool.close();
+    
+    // Now connect to the target database
+    const config: mssql.config = {
+      ...masterConfig,
+      database: process.env.DB_NAME,
+    };
+
     sqlServerPool = new mssql.ConnectionPool(config);
     await sqlServerPool.connect();
-    console.log("Connected to SQL Server successfully");
+    console.log("✅ Conectado ao SQL Server com sucesso!");
+    console.log("🔄 Criando/verificando tabelas...");
     await createTablesIfNotExist();
     return true;
   } catch (error) {
-    console.error("Failed to connect to SQL Server:", error);
-    console.log("SQL Server not available. Using memory storage...");
+    console.error("❌ Erro ao conectar ao SQL Server:", error);
+    console.log("🔄 A continuar com armazenamento em memória...");
     sqlServerPool = null;
     return false;
   }
