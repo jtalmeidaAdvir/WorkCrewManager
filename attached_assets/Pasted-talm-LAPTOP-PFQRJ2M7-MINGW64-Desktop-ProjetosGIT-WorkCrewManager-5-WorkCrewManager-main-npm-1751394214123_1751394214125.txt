@@ -1,0 +1,58 @@
+talm@LAPTOP-PFQRJ2M7 MINGW64 ~/Desktop/ProjetosGIT/WorkCrewManager (5)/WorkCrewManager (main)
+$ npm install
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 582 packages, and audited 583 packages in 29s
+
+81 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (1 low, 8 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+jtalm@LAPTOP-PFQRJ2M7 MINGW64 ~/Desktop/ProjetosGIT/WorkCrewManager (5)/WorkCrewManager (main)
+$ npx cross-env NODE_ENV=development tsx server/index.ts
+[dotenv@17.0.0] injecting env (7) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+Tentando conectar à sua base SQL Server existente...
+Configurando SQL Server...
+Servidor: localhost:1433
+Base de dados: AdvirwwTeste
+Utilizador: sa
+Tentativa 1 - conectar ao master...
+Base de dados verificada/criada com sucesso
+Conectando à base de dados alvo...
+Conectado ao SQL Server com sucesso!
+Criando/verificando tabelas...
+Database tables verified/created successfully
+✅ Conectado à base de dados Advir com sucesso!
+🔄 Usando SQL Server storage...
+✅ Utilizador admin criado - username: admin, password: admin123
+Using memory store for sessions - sessions will not persist across server restarts
+7:15:39 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+7:16:01 PM [express] GET /api/user 401 in 4ms
+7:16:10 PM [express] POST /api/login 200 in 143ms :: {"id":"user_1751393739538_7zyicwg5n","username"…
+7:16:10 PM [express] GET /api/stats 304 in 14ms :: {"hoursToday":0,"hoursWeek":0,"activeProjects":0,…
+7:16:10 PM [express] GET /api/registo-ponto/today 304 in 28ms
+7:16:10 PM [express] GET /api/partes-diarias 304 in 41ms :: []
+7:16:15 PM [express] GET /api/registo-ponto 304 in 10ms :: []
+7:16:16 PM [express] GET /api/obras 200 in 14ms :: []
+7:16:27 PM [express] POST /api/obras 200 in 70ms :: {"id":1,"codigo":"4710-507","nome":"Jorge Almeid…
+7:16:27 PM [express] GET /api/obras 200 in 28ms :: [{"id":1,"codigo":"4710-507","nome":"Jorge Almeid…
+7:16:32 PM [express] GET /api/obras/qr/038cdcd7-d391-4a03-aa6a-87830e9d833c 200 in 16ms :: {"id":1,"…
+7:16:33 PM [express] POST /api/registo-ponto/clock-in 200 in 32ms :: {"id":1,"userId":"user_17513937…
+7:16:33 PM [express] GET /api/registo-ponto/today 304 in 16ms
+7:16:33 PM [express] GET /api/registo-ponto 304 in 13ms :: []
+7:16:33 PM [express] GET /api/registo-ponto/today 304 in 11ms
+7:16:33 PM [express] GET /api/registo-ponto 304 in 8ms :: []
+7:16:33 PM [express] GET /api/stats 304 in 10ms :: {"hoursToday":0,"hoursWeek":0,"activeProjects":0,…
