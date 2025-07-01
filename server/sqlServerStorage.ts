@@ -268,13 +268,44 @@ export class SqlServerStorage implements IStorage {
     }
   }
 
-  // For now, implement other methods as minimal placeholders
   async getRegistosPonto(userId: string): Promise<RegistoPonto[]> {
-    return [];
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const result = await pool.request()
+        .input('userId', userId)
+        .query(`
+          SELECT * FROM registo_ponto 
+          WHERE userId = @userId 
+          ORDER BY data DESC, horaEntrada DESC
+        `);
+      
+      return result.recordset;
+    } catch (error) {
+      console.error("Error getting registos ponto:", error);
+      return [];
+    }
   }
 
   async getRegistoPontoByDate(userId: string, date: string): Promise<RegistoPonto | undefined> {
-    return undefined;
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const result = await pool.request()
+        .input('userId', userId)
+        .input('data', date)
+        .query(`
+          SELECT * FROM registo_ponto 
+          WHERE userId = @userId AND data = @data
+        `);
+      
+      return result.recordset[0];
+    } catch (error) {
+      console.error("Error getting registo ponto by date:", error);
+      return undefined;
+    }
   }
 
   async createRegistoPonto(registo: InsertRegistoPonto): Promise<RegistoPonto> {
@@ -287,13 +318,13 @@ export class SqlServerStorage implements IStorage {
         .input('data', registo.data)
         .input('horaEntrada', registo.horaEntrada || null)
         .input('horaSaida', registo.horaSaida || null)
-        .input('coordenadasEntrada', registo.coordenadasEntrada || null)
-        .input('coordenadasSaida', registo.coordenadasSaida || null)
+        .input('latitude', registo.latitude || null)
+        .input('longitude', registo.longitude || null)
         .input('obraId', registo.obraId || null)
         .query(`
-          INSERT INTO registo_ponto (userId, data, horaEntrada, horaSaida, coordenadasEntrada, coordenadasSaida, obraId)
+          INSERT INTO registo_ponto (userId, data, horaEntrada, horaSaida, latitude, longitude, obraId)
           OUTPUT INSERTED.*
-          VALUES (@userId, @data, @horaEntrada, @horaSaida, @coordenadasEntrada, @coordenadasSaida, @obraId)
+          VALUES (@userId, @data, @horaEntrada, @horaSaida, @latitude, @longitude, @obraId)
         `);
       
       return result.recordset[0];
@@ -319,13 +350,13 @@ export class SqlServerStorage implements IStorage {
         updates.push('horaSaida = @horaSaida');
         inputs.horaSaida = registo.horaSaida;
       }
-      if (registo.coordenadasEntrada !== undefined) {
-        updates.push('coordenadasEntrada = @coordenadasEntrada');
-        inputs.coordenadasEntrada = registo.coordenadasEntrada;
+      if (registo.latitude !== undefined) {
+        updates.push('latitude = @latitude');
+        inputs.latitude = registo.latitude;
       }
-      if (registo.coordenadasSaida !== undefined) {
-        updates.push('coordenadasSaida = @coordenadasSaida');
-        inputs.coordenadasSaida = registo.coordenadasSaida;
+      if (registo.longitude !== undefined) {
+        updates.push('longitude = @longitude');
+        inputs.longitude = registo.longitude;
       }
       if (registo.obraId !== undefined) {
         updates.push('obraId = @obraId');
@@ -533,11 +564,54 @@ export class SqlServerStorage implements IStorage {
     activeProjects: number;
     teamMembers: number;
   }> {
-    return {
-      hoursToday: 0,
-      hoursWeek: 0,
-      activeProjects: 0,
-      teamMembers: 0
-    };
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      // Get today's date in Lisbon timezone
+      const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+      
+      // Get today's hours
+      const todayResult = await pool.request()
+        .input('userId', userId)
+        .input('today', today)
+        .query(`
+          SELECT 
+            horaEntrada, horaSaida
+          FROM registo_ponto 
+          WHERE userId = @userId AND data = @today
+        `);
+      
+      let hoursToday = 0;
+      if (todayResult.recordset.length > 0) {
+        const registro = todayResult.recordset[0];
+        if (registro.horaEntrada && registro.horaSaida) {
+          const entrada = new Date(`${today}T${registro.horaEntrada}`);
+          const saida = new Date(`${today}T${registro.horaSaida}`);
+          hoursToday = (saida.getTime() - entrada.getTime()) / (1000 * 60 * 60);
+        }
+      }
+      
+      // Get active projects count
+      const projectsResult = await pool.request()
+        .query(`SELECT COUNT(*) as count FROM obras WHERE estado = 'Ativa'`);
+      
+      const activeProjects = projectsResult.recordset[0]?.count || 0;
+      
+      return {
+        hoursToday: Math.round(hoursToday * 100) / 100, // Round to 2 decimal places
+        hoursWeek: 0, // For now, we'll implement this later if needed
+        activeProjects,
+        teamMembers: 0 // For now, we'll implement this later if needed
+      };
+    } catch (error) {
+      console.error("Error getting user stats:", error);
+      return {
+        hoursToday: 0,
+        hoursWeek: 0,
+        activeProjects: 0,
+        teamMembers: 0
+      };
+    }
   }
 }
