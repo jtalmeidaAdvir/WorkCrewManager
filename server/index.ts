@@ -43,9 +43,14 @@ app.use((req, res, next) => {
 
 (async () => {
   // Tentar configurar SQL Server primeiro, depois PostgreSQL como fallback
-  const sqlServerConnected = await initializeSqlServer();
-  
-  if (!sqlServerConnected) {
+  try {
+    const sqlServerConnected = await initializeSqlServer();
+    
+    if (!sqlServerConnected) {
+      await setupDatabase();
+    }
+  } catch (error) {
+    console.log("🔄 A continuar com armazenamento em memória...");
     await setupDatabase();
   }
   

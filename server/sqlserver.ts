@@ -8,67 +8,65 @@ export async function initializeSqlServer() {
     return false;
   }
 
-  console.log("🔄 Configurando SQL Server...");
-  console.log(`📍 Servidor: ${process.env.DB_HOST}:${process.env.DB_PORT || '1433'}`);
-  console.log(`🏢 Base de dados: ${process.env.DB_NAME}`);
-  console.log(`👤 Utilizador: ${process.env.DB_USERNAME}`);
+  console.log("Configurando SQL Server...");
+  console.log(`Servidor: ${process.env.DB_HOST}:${process.env.DB_PORT || '1433'}`);
+  console.log(`Base de dados: ${process.env.DB_NAME}`);
+  console.log(`Utilizador: ${process.env.DB_USERNAME}`);
 
-  // First, connect without specifying database to create it if needed
-  const masterConfig: mssql.config = {
-    server: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || '1433'),
-    database: 'master', // Connect to master database first
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    options: {
-      encrypt: false,
-      trustServerCertificate: true,
-      enableArithAbort: true,
-    },
-    pool: {
-      max: 10,
-      min: 0,
-      idleTimeoutMillis: 30000,
-    },
-  };
+  const connectionStrings = [
+    `Server=${process.env.DB_HOST},${process.env.DB_PORT || '1433'};Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+    `Server=${process.env.DB_HOST}\\SQLEXPRESS;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+    `Server=${process.env.DB_HOST};Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+  ];
+
+  let workingConnectionString = null;
+
+  for (let i = 0; i < connectionStrings.length; i++) {
+    console.log(`Tentativa ${i + 1}...`);
+    try {
+      const testPool = new mssql.ConnectionPool(connectionStrings[i]);
+      await testPool.connect();
+      workingConnectionString = connectionStrings[i];
+      await testPool.close();
+      console.log(`Conexão bem-sucedida na tentativa ${i + 1}!`);
+      break;
+    } catch (error) {
+      console.log(`Tentativa ${i + 1} falhou`);
+    }
+  }
+
+  if (!workingConnectionString) {
+    console.log("Não foi possível conectar ao SQL Server");
+    return false;
+  }
 
   try {
-    // Connect to master database to create target database if needed
-    console.log("🔗 Conectando ao SQL Server...");
-    const masterPool = new mssql.ConnectionPool(masterConfig);
+    // Create database if needed
+    const masterPool = new mssql.ConnectionPool(workingConnectionString);
     await masterPool.connect();
     
-    // Create database if it doesn't exist
     const createDbQuery = `
       IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '${process.env.DB_NAME}')
       BEGIN
         CREATE DATABASE [${process.env.DB_NAME}]
-        PRINT 'Base de dados ${process.env.DB_NAME} criada com sucesso!'
-      END
-      ELSE
-      BEGIN
-        PRINT 'Base de dados ${process.env.DB_NAME} já existe'
+        PRINT 'Base de dados criada'
       END
     `;
     
     await masterPool.request().query(createDbQuery);
     await masterPool.close();
     
-    // Now connect to the target database
-    const config: mssql.config = {
-      ...masterConfig,
-      database: process.env.DB_NAME,
-    };
-
-    sqlServerPool = new mssql.ConnectionPool(config);
+    // Connect to target database
+    const targetConnectionString = workingConnectionString.replace('Database=master', `Database=${process.env.DB_NAME}`);
+    sqlServerPool = new mssql.ConnectionPool(targetConnectionString);
     await sqlServerPool.connect();
-    console.log("✅ Conectado ao SQL Server com sucesso!");
-    console.log("🔄 Criando/verificando tabelas...");
+    
+    console.log("Conectado ao SQL Server com sucesso!");
+    console.log("Criando/verificando tabelas...");
     await createTablesIfNotExist();
     return true;
   } catch (error) {
-    console.error("❌ Erro ao conectar ao SQL Server:", error);
-    console.log("🔄 A continuar com armazenamento em memória...");
+    console.error("Erro ao configurar SQL Server:", error);
     sqlServerPool = null;
     return false;
   }
