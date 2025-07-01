@@ -1,10 +1,24 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function MobileNavigation() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/logout");
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.clear();
+      window.location.href = "/auth";
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Force redirect even if logout fails
+      window.location.href = "/auth";
+    }
+  };
 
   const navigation = [
     { 
@@ -74,7 +88,7 @@ export default function MobileNavigation() {
           variant="ghost"
           size="sm"
           className="flex flex-col items-center py-2 px-3 text-gray-400 hover:text-gray-600"
-          onClick={() => window.location.href = "/api/logout"}
+          onClick={handleLogout}
         >
           <i className="fas fa-sign-out-alt text-lg mb-1"></i>
           <span className="text-xs">Sair</span>

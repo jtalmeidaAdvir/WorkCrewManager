@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import MobileNavigation from "@/components/MobileNavigation";
 
 interface LayoutProps {
@@ -12,6 +13,19 @@ export default function Layout({ children }: LayoutProps) {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/logout");
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.clear();
+      window.location.href = "/auth";
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Force redirect even if logout fails
+      window.location.href = "/auth";
+    }
+  };
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: "fas fa-home", roles: ["Trabalhador", "Diretor", "Encarregado"] },
@@ -96,7 +110,7 @@ export default function Layout({ children }: LayoutProps) {
               variant="ghost"
               size="sm"
               className="w-full mt-3 text-gray-300 hover:text-white hover:bg-slate-custom-700"
-              onClick={() => window.location.href = "/api/logout"}
+              onClick={handleLogout}
             >
               <i className="fas fa-sign-out-alt mr-2"></i>
               Sair
