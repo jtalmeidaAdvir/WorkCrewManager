@@ -1,0 +1,72 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:32 
+            
+            
+           GET http://localhost:5000/api/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=b6524f78:840
+run @ @tanstack_react-query.js?v=b6524f78:494
+start @ @tanstack_react-query.js?v=b6524f78:536
+fetch @ @tanstack_react-query.js?v=b6524f78:926
+executeFetch_fn @ @tanstack_react-query.js?v=b6524f78:2211
+onSubscribe @ @tanstack_react-query.js?v=b6524f78:1898
+subscribe @ @tanstack_react-query.js?v=b6524f78:24
+(anonymous) @ @tanstack_react-query.js?v=b6524f78:3022
+subscribeToStore @ chunk-WERSD76P.js?v=b63325ed:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=b63325ed:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=b63325ed:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=b63325ed:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=b63325ed:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=b63325ed:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=b63325ed:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=b63325ed:19447
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=b63325ed:18868
+flushSyncCallbacks @ chunk-WERSD76P.js?v=b63325ed:9119
+commitRootImpl @ chunk-WERSD76P.js?v=b63325ed:19432
+commitRoot @ chunk-WERSD76P.js?v=b63325ed:19277
+finishConcurrentRender @ chunk-WERSD76P.js?v=b63325ed:18805
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=b63325ed:18718
+workLoop @ chunk-WERSD76P.js?v=b63325ed:197
+flushWork @ chunk-WERSD76P.js?v=b63325ed:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=b63325ed:384Understand this error
+auth:1 Unchecked runtime.lastError: The message port closed before a response was received.Understand this error
+TimeTracking.tsx:27 Today registo: null
+TimeTracking.tsx:28 All registos: undefined
+TimeTracking.tsx:29 Today error: null
+TimeTracking.tsx:30 Registos error: null
+TimeTracking.tsx:31 Is working: null
+TimeTracking.tsx:27 Today registo: null
+TimeTracking.tsx:28 All registos: []
+TimeTracking.tsx:29 Today error: null
+TimeTracking.tsx:30 Registos error: null
+TimeTracking.tsx:31 Is working: null
+TimeTracking.tsx:27 Today registo: null
+TimeTracking.tsx:28 All registos: []
+TimeTracking.tsx:29 Today error: null
+TimeTracking.tsx:30 Registos error: null
+TimeTracking.tsx:31 Is working: null
+@radix-ui_react-dialog.js?v=4d0eec96:339 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ @radix-ui_react-dialog.js?v=4d0eec96:339
+commitHookEffectListMount @ chunk-WERSD76P.js?v=b63325ed:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=b63325ed:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=b63325ed:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=b63325ed:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=b63325ed:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=b63325ed:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=b63325ed:19447
+commitRootImpl @ chunk-WERSD76P.js?v=b63325ed:19416
+commitRoot @ chunk-WERSD76P.js?v=b63325ed:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=b63325ed:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=b63325ed:9119
+(anonymous) @ chunk-WERSD76P.js?v=b63325ed:18627Understand this warning
+TimeTracking.tsx:27 Today registo: null
+TimeTracking.tsx:28 All registos: []
+TimeTracking.tsx:29 Today error: null
+TimeTracking.tsx:30 Registos error: null
+TimeTracking.tsx:31 Is working: null
+QRScanner.tsx:204 Stopping camera...
+TimeTracking.tsx:27 Today registo: null
+TimeTracking.tsx:28 All registos: []
+TimeTracking.tsx:29 Today error: null
+TimeTracking.tsx:30 Registos error: null
+TimeTracking.tsx:31 Is working: null
