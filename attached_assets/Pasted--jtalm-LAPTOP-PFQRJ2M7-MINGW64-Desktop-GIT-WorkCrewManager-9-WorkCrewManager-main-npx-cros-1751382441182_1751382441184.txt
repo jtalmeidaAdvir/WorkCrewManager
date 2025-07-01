@@ -1,0 +1,60 @@
+
+jtalm@LAPTOP-PFQRJ2M7 MINGW64 ~/Desktop/GIT/WorkCrewManager (9)/WorkCrewManager (main)
+$ npx cross-env NODE_ENV=development tsx server/index.ts
+[dotenv@17.0.0] injecting env (7) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+Tentando conectar à sua base SQL Server existente...
+Configurando SQL Server...
+Servidor: localhost:1433
+Base de dados: Advir
+Utilizador: sa
+Tentativa 1...
+Conexão bem-sucedida na tentativa 1!
+Conectado ao SQL Server com sucesso!
+Criando/verificando tabelas...
+Error creating tables: RequestError: There is already an object named 'registo_ponto' in the database.
+    at handleError (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: There is already an object named 'registo_ponto' in the database.
+      at handleError (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\GIT\WorkCrewManager (9)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 2714,
+      state: 6,
+      class: 16,
+      message: "There is already an object named 'registo_ponto' in the database.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 31
+    }
+  },
+  number: 2714,
+  lineNumber: 31,
+  state: 6,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: []
+}
+✅ Conectado à base de dados Advir com sucesso!
+🔄 Usando SQL Server storage...
+Using memory store for sessions - sessions will not persist across server restarts
+4:07:05 PM [express] serving on port 5000

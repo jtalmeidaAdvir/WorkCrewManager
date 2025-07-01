@@ -185,8 +185,13 @@ async function createTablesIfNotExist() {
     `);
     
     console.log("Database tables verified/created successfully");
-  } catch (error) {
-    console.error("Error creating tables:", error);
+  } catch (error: any) {
+    // Ignore error if tables already exist (error 2714)
+    if (error.number === 2714) {
+      console.log("Tabelas já existem - a usar estrutura existente");
+    } else {
+      console.error("Error creating tables:", error);
+    }
   }
 }
 
