@@ -613,5 +613,14 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Use memory storage if database is not available
-export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemoryStorage();
+// Use database if available, otherwise use memory storage
+export const storage = (() => {
+  if (process.env.DATABASE_URL) {
+    console.log("Using PostgreSQL database storage");
+    return new DatabaseStorage();
+  } else {
+    console.warn("Using memory storage - data will be lost on server restart");
+    console.log("To persist data, provision a PostgreSQL database or configure SQL Server");
+    return new MemoryStorage();
+  }
+})();

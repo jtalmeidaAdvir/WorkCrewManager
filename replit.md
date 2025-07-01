@@ -130,6 +130,10 @@ Changelog:
 - July 01, 2025. Fixed team creation system to use real users from database instead of hardcoded fictional users
 - July 01, 2025. MIGRATED from Replit Auth to local authentication system with username/password login, director can create users and see generated credentials to distribute manually
 - July 01, 2025. Added password reset functionality allowing directors to generate new passwords for existing users and view the new credentials
+- July 01, 2025. Added .env file with SQL Server configuration for automatic table creation
+- July 01, 2025. Improved QR scanner camera functionality with detailed error handling and mobile device support
+- July 01, 2025. Fixed timezone issues - all time tracking now uses Europe/Lisbon timezone correctly
+- July 01, 2025. NOTE: Currently using memory storage - data is lost on server restart. To persist data, need PostgreSQL database or SQL Server connection
 ```
 
 ## User Preferences
