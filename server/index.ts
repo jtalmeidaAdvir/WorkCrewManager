@@ -44,6 +44,7 @@ app.use((req, res, next) => {
 (async () => {
   // Import storage functions
   const { setStorageInstance, DatabaseStorage, MemoryStorage } = await import("./storage");
+  const { SqlServerStorage } = await import("./sqlServerStorage");
   
   // Conectar APENAS ao SQL Server local - base dados Advir
   try {
@@ -52,7 +53,8 @@ app.use((req, res, next) => {
     
     if (sqlServerConnected) {
       console.log("✅ Conectado à base de dados Advir com sucesso!");
-      setStorageInstance(new MemoryStorage()); // Temporarily use memory until SQL Server storage is implemented
+      console.log("🔄 Usando SQL Server storage...");
+      setStorageInstance(new SqlServerStorage());
     } else {
       console.log("❌ SQL Server local não acessível do Replit (normal)");
       console.log("💡 SOLUÇÕES:");
