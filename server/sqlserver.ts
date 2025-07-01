@@ -73,6 +73,22 @@ async function createTablesIfNotExist() {
   try {
     const request = sqlServerPool.request();
     
+    // First, check if obras table has wrong structure and fix it
+    await request.query(`
+      IF EXISTS (SELECT * FROM sysobjects WHERE name='obras' AND xtype='U')
+      BEGIN
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'obras' AND COLUMN_NAME = 'localizacao')
+        BEGIN
+          DROP TABLE IF EXISTS equipa_membros;
+          DROP TABLE IF EXISTS equipa_obra;
+          DROP TABLE IF EXISTS partes_diarias;
+          DROP TABLE IF EXISTS registo_ponto;
+          DROP TABLE IF EXISTS obras;
+          PRINT 'Tabelas antigas removidas para atualização de estrutura'
+        END
+      END
+    `);
+
     // Check if users table exists, if not create all tables
     await request.query(`
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
@@ -96,10 +112,9 @@ async function createTablesIfNotExist() {
           id INT IDENTITY(1,1) PRIMARY KEY,
           codigo NVARCHAR(255) UNIQUE NOT NULL,
           nome NVARCHAR(255) NOT NULL,
-          descricao NVARCHAR(MAX),
-          estado NVARCHAR(50) DEFAULT 'Ativo',
-          coordenadas NVARCHAR(255),
-          qrCode NVARCHAR(255) UNIQUE,
+          localizacao NVARCHAR(MAX) NOT NULL,
+          estado NVARCHAR(50) DEFAULT 'Ativa',
+          qrCode NVARCHAR(255) UNIQUE NOT NULL,
           createdAt DATETIME2 DEFAULT GETDATE()
         );
         
