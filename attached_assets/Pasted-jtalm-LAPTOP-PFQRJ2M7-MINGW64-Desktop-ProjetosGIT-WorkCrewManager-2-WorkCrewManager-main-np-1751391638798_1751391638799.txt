@@ -1,0 +1,154 @@
+jtalm@LAPTOP-PFQRJ2M7 MINGW64 ~/Desktop/ProjetosGIT/WorkCrewManager (2)/WorkCrewManager (main)
+$ npx cross-env NODE_ENV=development tsx server/index.ts
+[dotenv@17.0.0] injecting env (7) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+Tentando conectar à sua base SQL Server existente...
+Configurando SQL Server...
+Servidor: localhost:1433
+Base de dados: Advirww
+Utilizador: sa
+Tentativa 1 - conectar ao master...
+Base de dados verificada/criada com sucesso
+Conectando à base de dados alvo...
+Conectado ao SQL Server com sucesso!
+Criando/verificando tabelas...
+Database tables verified/created successfully
+✅ Conectado à base de dados Advir com sucesso!
+🔄 Usando SQL Server storage...
+✅ Utilizador admin criado - username: admin, password: admin123
+Using memory store for sessions - sessions will not persist across server restarts
+6:34:53 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+6:35:03 PM [express] GET /api/user 401 in 6ms
+6:35:10 PM [express] POST /api/login 200 in 105ms :: {"id":"user_1751391293605_pgvd0cls1","username"…
+6:35:10 PM [express] GET /api/stats 304 in 7ms :: {"hoursToday":0,"hoursWeek":0,"activeProjects":0,"…
+6:35:10 PM [express] GET /api/registo-ponto/today 304 in 11ms
+6:35:10 PM [express] GET /api/partes-diarias 304 in 6ms :: []
+6:35:15 PM [express] GET /api/users 200 in 36ms :: [{"id":"user_1751391293605_pgvd0cls1","username":…
+6:35:20 PM [express] POST /api/users 200 in 106ms :: {"user":{"id":"user_1751391320986_jrge1pqp4","u…
+6:35:21 PM [express] GET /api/users 200 in 9ms :: [{"id":"user_1751391293605_pgvd0cls1","username":"…
+6:35:32 PM [express] POST /api/users 200 in 105ms :: {"user":{"id":"user_1751391332309_lk18khr7c","u…
+6:35:32 PM [express] GET /api/users 200 in 11ms :: [{"id":"user_1751391293605_pgvd0cls1","username":…
+6:35:34 PM [express] GET /api/equipas 304 in 26ms :: []
+6:35:35 PM [express] GET /api/obras 200 in 25ms :: []
+6:35:43 PM [express] POST /api/obras 200 in 47ms :: {"id":1,"codigo":"4710-507","nome":"Jorge Almeid…
+6:35:43 PM [express] GET /api/obras 200 in 20ms :: [{"id":1,"codigo":"4710-507","nome":"Jorge Almeid…
+6:35:51 PM [express] POST /api/equipas 200 in 19ms :: {"id":1,"nome":"Jorge Almeida","obraId":1,"enc…
+6:35:51 PM [express] POST /api/equipas/1/members 200 in 19ms :: {"id":1,"equipaId":1,"userId":"user_…
+6:35:51 PM [express] GET /api/equipas 200 in 47ms :: [{"id":1,"nome":"Jorge Almeida","obraId":1,"enc…
+6:35:59 PM [express] GET /api/registo-ponto 304 in 8ms :: []
+6:36:03 PM [express] GET /api/obras/qr/5dbbc42a-66d0-4ad5-92f9-5b13f102c5b9 200 in 45ms :: {"id":1,"…
+Error clocking in: ZodError: [
+  {
+    "code": "invalid_union",
+    "unionErrors": [
+      {
+        "issues": [
+          {
+            "code": "invalid_type",
+            "expected": "string",
+            "received": "undefined",
+            "path": [
+              "latitude"
+            ],
+            "message": "Required"
+          }
+        ],
+        "name": "ZodError"
+      },
+      {
+        "issues": [
+          {
+            "code": "invalid_type",
+            "expected": "number",
+            "received": "undefined",
+            "path": [
+              "latitude"
+            ],
+            "message": "Required"
+          }
+        ],
+        "name": "ZodError"
+      }
+    ],
+    "path": [
+      "latitude"
+    ],
+    "message": "Invalid input"
+  },
+  {
+    "code": "invalid_union",
+    "unionErrors": [
+      {
+        "issues": [
+          {
+            "code": "invalid_type",
+            "expected": "string",
+            "received": "undefined",
+            "path": [
+              "longitude"
+            ],
+            "message": "Required"
+          }
+        ],
+        "name": "ZodError"
+      },
+      {
+        "issues": [
+          {
+            "code": "invalid_type",
+            "expected": "number",
+            "received": "undefined",
+            "path": [
+              "longitude"
+            ],
+            "message": "Required"
+          }
+        ],
+        "name": "ZodError"
+      }
+    ],
+    "path": [
+      "longitude"
+    ],
+    "message": "Invalid input"
+  }
+]
+    at get error [as error] (file:///C:/Users/jtalm/Desktop/ProjetosGIT/WorkCrewManager%20(2)/WorkCrewManager/node_modules/zod/lib/index.mjs:587:31)
+    at ZodObject.parse (file:///C:/Users/jtalm/Desktop/ProjetosGIT/WorkCrewManager%20(2)/WorkCrewManager/node_modules/zod/lib/index.mjs:663:22)
+    at <anonymous> (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (2)\WorkCrewManager\server\routes.ts:149:54)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  issues: [
+    {
+      code: 'invalid_union',
+      unionErrors: [Array],
+      path: [Array],
+      message: 'Invalid input'
+    },
+    {
+      code: 'invalid_union',
+      unionErrors: [Array],
+      path: [Array],
+      message: 'Invalid input'
+    }
+  ],
+  addIssue: [Function (anonymous)],
+  addIssues: [Function (anonymous)],
+  errors: [
+    {
+      code: 'invalid_union',
+      unionErrors: [Array],
+      path: [Array],
+      message: 'Invalid input'
+    },
+    {
+      code: 'invalid_union',
+      unionErrors: [Array],
+      path: [Array],
+      message: 'Invalid input'
+    }
+  ]
+}
+6:36:05 PM [express] POST /api/registo-ponto/clock-in 500 in 31ms :: {"message":"Failed to clock in"}
+
