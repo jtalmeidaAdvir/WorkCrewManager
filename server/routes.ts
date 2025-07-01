@@ -11,6 +11,25 @@ import {
 } from "@shared/schema";
 import crypto from "crypto";
 
+// Timezone utility functions for Lisbon
+function getLisbonDate(): Date {
+  return new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Lisbon"}));
+}
+
+function getLisbonDateString(): string {
+  const lisbonDate = getLisbonDate();
+  return lisbonDate.getFullYear() + '-' + 
+    String(lisbonDate.getMonth() + 1).padStart(2, '0') + '-' + 
+    String(lisbonDate.getDate()).padStart(2, '0');
+}
+
+function getLisbonTimeString(): string {
+  const lisbonDate = getLisbonDate();
+  return String(lisbonDate.getHours()).padStart(2, '0') + ':' + 
+    String(lisbonDate.getMinutes()).padStart(2, '0') + ':' + 
+    String(lisbonDate.getSeconds()).padStart(2, '0');
+}
+
 // Authentication middleware
 const isAuthenticated = (req: any, res: any, next: any) => {
   if (!req.isAuthenticated()) {
@@ -97,7 +116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/registo-ponto/today", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLisbonDateString();
       const registo = await storage.getRegistoPontoByDate(userId, today);
       res.json(registo || null);
     } catch (error) {
@@ -109,8 +128,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/registo-ponto/clock-in", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const today = new Date().toISOString().split('T')[0];
-      const now = new Date().toTimeString().split(' ')[0];
+      const today = getLisbonDateString();
+      const now = getLisbonTimeString();
 
       // Check if already clocked in today
       const existingRegisto = await storage.getRegistoPontoByDate(userId, today);
@@ -145,8 +164,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/registo-ponto/clock-out", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const today = new Date().toISOString().split('T')[0];
-      const now = new Date().toTimeString().split(' ')[0];
+      const today = getLisbonDateString();
+      const now = getLisbonTimeString();
 
       const existingRegisto = await storage.getRegistoPontoByDate(userId, today);
       if (!existingRegisto || !existingRegisto.horaEntrada) {
