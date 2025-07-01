@@ -14,9 +14,11 @@ export async function initializeSqlServer() {
   console.log(`Utilizador: ${process.env.DB_USERNAME}`);
 
   const connectionStrings = [
+    `Server=${process.env.DB_HOST}\\SQL2022;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+    `Server=${process.env.DB_HOST}\\PRIEXPRESS100;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+    `Server=${process.env.DB_HOST}\\SQL_LA_2025;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+    `Server=${process.env.DB_HOST}\\SQL2022V10;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
     `Server=${process.env.DB_HOST},${process.env.DB_PORT || '1433'};Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-    `Server=${process.env.DB_HOST}\\SQLEXPRESS;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-    `Server=${process.env.DB_HOST};Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
   ];
 
   let workingConnectionString = null;
@@ -25,7 +27,14 @@ export async function initializeSqlServer() {
     console.log(`Tentativa ${i + 1}...`);
     try {
       const testPool = new mssql.ConnectionPool(connectionStrings[i]);
-      await testPool.connect();
+      
+      // Set timeout to prevent hanging
+      const connectPromise = testPool.connect();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 3000)
+      );
+      
+      await Promise.race([connectPromise, timeoutPromise]);
       workingConnectionString = connectionStrings[i];
       await testPool.close();
       console.log(`Conexão bem-sucedida na tentativa ${i + 1}!`);
