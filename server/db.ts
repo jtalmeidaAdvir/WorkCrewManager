@@ -5,21 +5,11 @@ import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-let pool: Pool;
-let db: ReturnType<typeof drizzle>;
-
-if (process.env.DATABASE_URL) {
-  pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  db = drizzle({ client: pool, schema });
-} else {
-  console.warn("DATABASE_URL not found. Database operations will be disabled until a PostgreSQL database is provisioned.");
-  // Create placeholder pool and db that will throw helpful errors
-  pool = null as any;
-  db = new Proxy({} as any, {
-    get() {
-      throw new Error("Database not configured. Please provision a PostgreSQL database in Replit and set DATABASE_URL environment variable.");
-    }
-  });
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
 }
 
-export { pool, db };
+export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle({ client: pool, schema });
