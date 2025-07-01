@@ -138,6 +138,7 @@ Changelog:
 - July 01, 2025. Implemented automatic database setup - npm run dev now automatically creates/updates database tables if DATABASE_URL is configured, with intelligent fallback to memory storage
 - July 01, 2025. Implemented automatic SQL Server integration - system detects SQL Server configuration from .env file, creates database "Obras" automatically, and creates all required tables on first connection
 - July 01, 2025. MIGRAÇÃO REPLIT COMPLETA: Configurado sistema híbrido que tenta conectar ao SQL Server local primeiro (localhost:1433), depois usa PostgreSQL Replit como fallback. Sistema funciona em ambos os ambientes.
+- July 01, 2025. REPLIT AGENT MIGRATION: Successfully migrated project from Replit Agent to standard Replit environment. Fixed GPS coordinate validation to make latitude/longitude optional when geolocation is unavailable. Configured PostgreSQL database with proper schema creation. Project now runs cleanly in Replit with robust security practices.
 ```
 
 ## User Preferences
