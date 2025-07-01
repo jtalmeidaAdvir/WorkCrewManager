@@ -40,16 +40,24 @@ export function generatePassword(): string {
 
 export function setupAuth(app: Express) {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
   
   const sessionSecret = process.env.SESSION_SECRET || 
     `construct-pro-fallback-secret-${process.env.REPL_ID || 'development'}`;
+
+  // Use memory store temporarily if no database is available
+  let sessionStore: any = undefined;
+  
+  if (process.env.DATABASE_URL) {
+    const pgStore = connectPg(session);
+    sessionStore = new pgStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: false,
+      ttl: sessionTtl,
+      tableName: "sessions",
+    });
+  } else {
+    console.warn("Using memory store for sessions - sessions will not persist across server restarts");
+  }
 
   const sessionSettings: session.SessionOptions = {
     secret: sessionSecret,

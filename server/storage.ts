@@ -66,6 +66,289 @@ export interface IStorage {
   }>;
 }
 
+// Memory Storage implementation for when database is not available
+export class MemoryStorage implements IStorage {
+  private users: User[] = [];
+  private obras: Obra[] = [];
+  private registosPonto: RegistoPonto[] = [];
+  private equipas: EquipaObra[] = [];
+  private equipaMembros: EquipaMembros[] = [];
+  private partesDiarias: PartesDiarias[] = [];
+  
+  private nextUserId = 1;
+  private nextObraId = 1;
+  private nextRegistoId = 1;
+  private nextEquipaId = 1;
+  private nextParteId = 1;
+
+  constructor() {
+    // Create default admin user with hashed password
+    this.users.push({
+      id: "admin",
+      username: "admin",
+      password: "415fcda5e3ba8ea5fb450927d2351e84dc4733f341f02ab1cbcb9c5f87c53d59f77f5db66c39e332772ffafe4ac0722e1ef101a301b4a4e131e678cf75beabf3.92f33c3d2aa82613bc3204201e2e7514", // hashed "admin123"
+      email: "admin@constructpro.com",
+      tipoUser: "Diretor",
+      firstName: "Admin",
+      lastName: "User",
+      profileImageUrl: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.find(u => u.id === id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return this.users.find(u => u.username === username);
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingIndex = this.users.findIndex(u => u.id === userData.id);
+    const now = new Date();
+    
+    if (existingIndex >= 0) {
+      this.users[existingIndex] = {
+        ...this.users[existingIndex],
+        ...userData,
+        updatedAt: now,
+      };
+      return this.users[existingIndex];
+    } else {
+      const newUser: User = {
+        ...userData,
+        createdAt: now,
+        updatedAt: now,
+      } as User;
+      this.users.push(newUser);
+      return newUser;
+    }
+  }
+
+  async updateUserType(id: string, tipoUser: string): Promise<User> {
+    const user = this.users.find(u => u.id === id);
+    if (!user) throw new Error("User not found");
+    user.tipoUser = tipoUser;
+    user.updatedAt = new Date();
+    return user;
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string): Promise<User> {
+    const user = this.users.find(u => u.id === id);
+    if (!user) throw new Error("User not found");
+    user.password = hashedPassword;
+    user.updatedAt = new Date();
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return [...this.users];
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const now = new Date();
+    const newUser: User = {
+      ...userData,
+      id: userData.id || String(this.nextUserId++),
+      createdAt: now,
+      updatedAt: now,
+    } as User;
+    this.users.push(newUser);
+    return newUser;
+  }
+
+  async getObras(): Promise<Obra[]> {
+    return [...this.obras];
+  }
+
+  async getObra(id: number): Promise<Obra | undefined> {
+    return this.obras.find(o => o.id === id);
+  }
+
+  async getObraByQRCode(qrCode: string): Promise<Obra | undefined> {
+    return this.obras.find(o => o.qrCode === qrCode);
+  }
+
+  async createObra(obra: InsertObra): Promise<Obra> {
+    const newObra: Obra = {
+      ...obra,
+      id: this.nextObraId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Obra;
+    this.obras.push(newObra);
+    return newObra;
+  }
+
+  async updateObra(id: number, obra: Partial<InsertObra>): Promise<Obra> {
+    const existingObra = this.obras.find(o => o.id === id);
+    if (!existingObra) throw new Error("Obra not found");
+    Object.assign(existingObra, obra, { updatedAt: new Date() });
+    return existingObra;
+  }
+
+  async getRegistosPonto(userId: string): Promise<RegistoPonto[]> {
+    return this.registosPonto.filter(r => r.userId === userId);
+  }
+
+  async getRegistoPontoByDate(userId: string, date: string): Promise<RegistoPonto | undefined> {
+    return this.registosPonto.find(r => r.userId === userId && r.data === date);
+  }
+
+  async createRegistoPonto(registo: InsertRegistoPonto): Promise<RegistoPonto> {
+    const newRegisto: RegistoPonto = {
+      ...registo,
+      id: this.nextRegistoId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as RegistoPonto;
+    this.registosPonto.push(newRegisto);
+    return newRegisto;
+  }
+
+  async updateRegistoPonto(id: number, registo: Partial<InsertRegistoPonto>): Promise<RegistoPonto> {
+    const existing = this.registosPonto.find(r => r.id === id);
+    if (!existing) throw new Error("Registo not found");
+    Object.assign(existing, registo, { updatedAt: new Date() });
+    return existing;
+  }
+
+  async getEquipas(): Promise<(EquipaObra & { obra: Obra; encarregado: User; membros: (EquipaMembros & { user: User })[] })[]> {
+    return this.equipas.map(equipa => ({
+      ...equipa,
+      obra: this.obras.find(o => o.id === equipa.obraId)!,
+      encarregado: this.users.find(u => u.id === equipa.encarregadoId)!,
+      membros: this.equipaMembros
+        .filter(m => m.equipaId === equipa.id)
+        .map(m => ({
+          ...m,
+          user: this.users.find(u => u.id === m.userId)!
+        }))
+    }));
+  }
+
+  async getEquipasByEncarregado(encarregadoId: string): Promise<(EquipaObra & { obra: Obra; membros: (EquipaMembros & { user: User })[] })[]> {
+    return this.equipas
+      .filter(e => e.encarregadoId === encarregadoId)
+      .map(equipa => ({
+        ...equipa,
+        obra: this.obras.find(o => o.id === equipa.obraId)!,
+        membros: this.equipaMembros
+          .filter(m => m.equipaId === equipa.id)
+          .map(m => ({
+            ...m,
+            user: this.users.find(u => u.id === m.userId)!
+          }))
+      }));
+  }
+
+  async getEquipasByMembro(userId: string): Promise<(EquipaObra & { obra: Obra; encarregado: User })[]> {
+    const userEquipas = this.equipaMembros.filter(m => m.userId === userId);
+    return userEquipas.map(m => {
+      const equipa = this.equipas.find(e => e.id === m.equipaId)!;
+      return {
+        ...equipa,
+        obra: this.obras.find(o => o.id === equipa.obraId)!,
+        encarregado: this.users.find(u => u.id === equipa.encarregadoId)!
+      };
+    });
+  }
+
+  async createEquipa(equipa: InsertEquipaObra): Promise<EquipaObra> {
+    const newEquipa: EquipaObra = {
+      ...equipa,
+      id: this.nextEquipaId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as EquipaObra;
+    this.equipas.push(newEquipa);
+    return newEquipa;
+  }
+
+  async addMembroToEquipa(equipaMembro: InsertEquipaMembros): Promise<EquipaMembros> {
+    const newMembro: EquipaMembros = {
+      ...equipaMembro,
+      createdAt: new Date(),
+    } as EquipaMembros;
+    this.equipaMembros.push(newMembro);
+    return newMembro;
+  }
+
+  async removeMembroFromEquipa(equipaId: number, userId: string): Promise<void> {
+    const index = this.equipaMembros.findIndex(m => m.equipaId === equipaId && m.userId === userId);
+    if (index >= 0) {
+      this.equipaMembros.splice(index, 1);
+    }
+  }
+
+  async getPartesDiarias(userId: string): Promise<(PartesDiarias & { obra: Obra })[]> {
+    return this.partesDiarias
+      .filter(p => p.userId === userId)
+      .map(p => ({
+        ...p,
+        obra: this.obras.find(o => o.id === p.obraId)!
+      }));
+  }
+
+  async getPartesDiariasByObra(obraId: number): Promise<(PartesDiarias & { user: User })[]> {
+    return this.partesDiarias
+      .filter(p => p.obraId === obraId)
+      .map(p => ({
+        ...p,
+        user: this.users.find(u => u.id === p.userId)!
+      }));
+  }
+
+  async createParteDiaria(parte: InsertPartesDiarias): Promise<PartesDiarias> {
+    const newParte: PartesDiarias = {
+      ...parte,
+      id: this.nextParteId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as PartesDiarias;
+    this.partesDiarias.push(newParte);
+    return newParte;
+  }
+
+  async getUserStats(userId: string): Promise<{
+    hoursToday: number;
+    hoursWeek: number;
+    activeProjects: number;
+    teamMembers: number;
+  }> {
+    const today = new Date().toISOString().split('T')[0];
+    const userRegistos = this.registosPonto.filter(r => r.userId === userId);
+    
+    const todayRegisto = userRegistos.find(r => r.data === today);
+    const hoursToday = todayRegisto ? parseFloat(todayRegisto.totalHorasTrabalhadas || '0') : 0;
+    
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const weekRegistos = userRegistos.filter(r => new Date(r.data) >= weekStart);
+    const hoursWeek = weekRegistos.reduce((total, r) => total + parseFloat(r.totalHorasTrabalhadas || '0'), 0);
+    
+    const userEquipas = this.equipaMembros.filter(m => m.userId === userId);
+    const activeProjects = new Set(userEquipas.map(m => {
+      const equipa = this.equipas.find(e => e.id === m.equipaId);
+      return equipa?.obraId;
+    })).size;
+    
+    const teamMembers = this.equipaMembros.filter(m => {
+      const equipa = this.equipas.find(e => e.id === m.equipaId);
+      return equipa?.encarregadoId === userId;
+    }).length;
+    
+    return {
+      hoursToday,
+      hoursWeek,
+      activeProjects,
+      teamMembers,
+    };
+  }
+}
+
 export class DatabaseStorage implements IStorage {
   // User operations (mandatory for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
@@ -330,4 +613,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Use memory storage if database is not available
+export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemoryStorage();
