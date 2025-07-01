@@ -5,6 +5,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupDatabase } from "./setup-database";
+import { initializeSqlServer } from "./sqlserver";
 
 const app = express();
 app.use(express.json());
@@ -41,8 +42,39 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Configurar PostgreSQL database
-  await setupDatabase();
+  // Import storage functions
+  const { setStorageInstance, DatabaseStorage, MemoryStorage } = await import("./storage");
+  
+  // Tentar conectar ao SQL Server local primeiro, depois PostgreSQL como fallback
+  try {
+    console.log("Tentando conectar ao SQL Server local...");
+    const sqlServerConnected = await initializeSqlServer();
+    
+    if (sqlServerConnected) {
+      console.log("SQL Server conectado com sucesso!");
+      setStorageInstance(new MemoryStorage()); // Temporarily use memory until SQL Server storage is implemented
+    } else {
+      console.log("SQL Server não disponível, usando PostgreSQL...");
+      await setupDatabase();
+      if (process.env.DATABASE_URL) {
+        console.log("Using PostgreSQL database storage");
+        setStorageInstance(new DatabaseStorage());
+      } else {
+        console.log("Using memory storage - data will be lost on server restart");
+        setStorageInstance(new MemoryStorage());
+      }
+    }
+  } catch (error) {
+    console.log("Erro ao conectar SQL Server, usando PostgreSQL...");
+    await setupDatabase();
+    if (process.env.DATABASE_URL) {
+      console.log("Using PostgreSQL database storage");
+      setStorageInstance(new DatabaseStorage());
+    } else {
+      console.log("Using memory storage - data will be lost on server restart");
+      setStorageInstance(new MemoryStorage());
+    }
+  }
   
   const server = await registerRoutes(app);
 

@@ -22,9 +22,12 @@ export async function initializeSqlServer() {
   let workingConnectionString = null;
 
   for (let i = 0; i < connectionStrings.length; i++) {
+    const connectionString = connectionStrings[i];
+    if (!connectionString) continue;
+    
     console.log(`Tentativa ${i + 1}...`);
     try {
-      const testPool = new mssql.ConnectionPool(connectionStrings[i]);
+      const testPool = new mssql.ConnectionPool(connectionString as string);
       
       // Set timeout to prevent hanging
       const connectPromise = testPool.connect();
@@ -189,4 +192,8 @@ async function createTablesIfNotExist() {
 
 export function getSqlServerPool() {
   return sqlServerPool;
+}
+
+export function isSqlServerConnected() {
+  return sqlServerPool !== null && sqlServerPool.connected;
 }

@@ -613,14 +613,27 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Use database if available, otherwise use memory storage
-export const storage = (() => {
-  if (process.env.DATABASE_URL) {
-    console.log("Using PostgreSQL database storage");
-    return new DatabaseStorage();
-  } else {
-    console.warn("Using memory storage - data will be lost on server restart");
-    console.log("To persist data, provision a PostgreSQL database or configure SQL Server");
-    return new MemoryStorage();
+import { isSqlServerConnected } from "./sqlserver";
+
+// Storage instance will be set after database initialization
+let storageInstance: IStorage;
+
+export function setStorageInstance(instance: IStorage) {
+  storageInstance = instance;
+}
+
+export function getStorage(): IStorage {
+  if (!storageInstance) {
+    // Fallback to memory storage if no instance is set
+    console.warn("Using fallback memory storage - data will be lost on server restart");
+    storageInstance = new MemoryStorage();
   }
-})();
+  return storageInstance;
+}
+
+// Export storage getter as default
+export const storage = new Proxy({} as IStorage, {
+  get(target, prop) {
+    return getStorage()[prop as keyof IStorage];
+  }
+});
