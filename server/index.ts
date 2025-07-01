@@ -54,7 +54,31 @@ app.use((req, res, next) => {
     if (sqlServerConnected) {
       console.log("✅ Conectado à base de dados Advir com sucesso!");
       console.log("🔄 Usando SQL Server storage...");
-      setStorageInstance(new SqlServerStorage());
+      const sqlStorage = new SqlServerStorage();
+      setStorageInstance(sqlStorage);
+      
+      // Create initial admin user if it doesn't exist
+      try {
+        const adminUser = await sqlStorage.getUserByUsername('admin');
+        if (!adminUser) {
+          const { hashPassword } = await import("./auth");
+          const hashedPassword = await hashPassword('admin123');
+          await sqlStorage.createUser({
+            id: 'admin-1',
+            username: 'admin',
+            password: hashedPassword,
+            firstName: 'Admin',
+            lastName: 'System',
+            email: 'admin@system.com',
+            tipoUser: 'Diretor'
+          });
+          console.log("✅ Utilizador admin criado - username: admin, password: admin123");
+        } else {
+          console.log("✅ Utilizador admin já existe");
+        }
+      } catch (error) {
+        console.error("Erro ao criar utilizador admin:", error);
+      }
     } else {
       console.log("❌ SQL Server local não acessível do Replit (normal)");
       console.log("💡 SOLUÇÕES:");
