@@ -134,6 +134,7 @@ Changelog:
 - July 01, 2025. Improved QR scanner camera functionality with detailed error handling and mobile device support
 - July 01, 2025. Fixed timezone issues - all time tracking now uses Europe/Lisbon timezone correctly
 - July 01, 2025. NOTE: Currently using memory storage - data is lost on server restart. To persist data, need PostgreSQL database or SQL Server connection
+- July 01, 2025. Added Windows compatibility support - created .bat and .ps1 scripts for local development on Windows systems, addressing NODE_ENV environment variable issues
 ```
 
 ## User Preferences
