@@ -29,17 +29,68 @@ export default function QRScanner({ onClose, onScan }: QRScannerProps) {
   const startCamera = async () => {
     try {
       setCameraError("");
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" } // Use back camera if available
-      });
       
-      if (videoRef.current) {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera API not supported");
+      }
+      
+      // Try different camera configurations
+      let stream: MediaStream | null = null;
+      
+      try {
+        // Try back camera first
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+      } catch (backCameraError) {
+        console.log("Back camera failed, trying front camera");
+        try {
+          // Fall back to front camera
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: "user",
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+        } catch (frontCameraError) {
+          console.log("Front camera failed, trying any camera");
+          // Fall back to any available camera
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true
+          });
+        }
+      }
+      
+      if (stream && videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
-        setCameraActive(true);
+        
+        // Wait for video to be ready
+        videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            videoRef.current.play();
+            setCameraActive(true);
+          }
+        };
       }
-    } catch (error) {
-      setCameraError("Não foi possível aceder à câmera. Verifique as permissões.");
+    } catch (error: any) {
+      let errorMessage = "Não foi possível aceder à câmera.";
+      
+      if (error.name === "NotAllowedError") {
+        errorMessage = "Permissão da câmera negada. Por favor, permita o acesso à câmera.";
+      } else if (error.name === "NotFoundError") {
+        errorMessage = "Nenhuma câmera encontrada no dispositivo.";
+      } else if (error.name === "NotSupportedError") {
+        errorMessage = "Câmera não suportada neste navegador.";
+      }
+      
+      setCameraError(errorMessage);
       console.error("Camera error:", error);
     }
   };
