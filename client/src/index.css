@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Construction theme colors */
+  --construction-50: hsl(18, 100%, 97%);
+  --construction-100: hsl(18, 100%, 90%);
+  --construction-500: hsl(18, 89%, 59%);
+  --construction-600: hsl(18, 76%, 50%);
+  --construction-700: hsl(18, 74%, 42%);
+  
+  /* Custom slate colors */
+  --slate-custom-600: hsl(220, 13%, 18%);
+  --slate-custom-700: hsl(220, 13%, 15%);
+  --slate-custom-800: hsl(220, 13%, 11%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Roboto', system-ui, sans-serif;
+  }
+}
+
+/* Construction theme utilities */
+.bg-construction-50 { background-color: var(--construction-50); }
+.bg-construction-100 { background-color: var(--construction-100); }
+.bg-construction-500 { background-color: var(--construction-500); }
+.bg-construction-600 { background-color: var(--construction-600); }
+.bg-construction-700 { background-color: var(--construction-700); }
+
+.text-construction-500 { color: var(--construction-500); }
+.text-construction-600 { color: var(--construction-600); }
+.text-construction-700 { color: var(--construction-700); }
+
+.border-construction-200 { border-color: hsl(18, 89%, 85%); }
+.border-construction-500 { border-color: var(--construction-500); }
+
+.hover\:bg-construction-50:hover { background-color: var(--construction-50); }
+.hover\:bg-construction-600:hover { background-color: var(--construction-600); }
+.hover\:text-construction-600:hover { color: var(--construction-600); }
+.hover\:border-construction-500:hover { border-color: var(--construction-500); }
+
+/* Custom slate utilities */
+.bg-slate-custom-600 { background-color: var(--slate-custom-600); }
+.bg-slate-custom-700 { background-color: var(--slate-custom-700); }
+.bg-slate-custom-800 { background-color: var(--slate-custom-800); }
+
+.border-slate-custom-600 { border-color: var(--slate-custom-600); }
+
+.hover\:bg-slate-custom-700:hover { background-color: var(--slate-custom-700); }
+
+/* Mobile bottom navigation spacing */
+.mobile-nav-padding {
+  padding-bottom: 80px;
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav-padding {
+    padding-bottom: 0;
+  }
+}
