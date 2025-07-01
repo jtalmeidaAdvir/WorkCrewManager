@@ -45,35 +45,29 @@ app.use((req, res, next) => {
   // Import storage functions
   const { setStorageInstance, DatabaseStorage, MemoryStorage } = await import("./storage");
   
-  // Tentar conectar ao SQL Server local primeiro, depois PostgreSQL como fallback
+  // Conectar APENAS ao SQL Server local - base dados Advir
   try {
-    console.log("Tentando conectar ao SQL Server local...");
+    console.log("Conectando à base de dados local Advir...");
     const sqlServerConnected = await initializeSqlServer();
     
     if (sqlServerConnected) {
-      console.log("SQL Server conectado com sucesso!");
+      console.log("✅ Conectado à base de dados Advir com sucesso!");
       setStorageInstance(new MemoryStorage()); // Temporarily use memory until SQL Server storage is implemented
     } else {
-      console.log("SQL Server não disponível, usando PostgreSQL...");
-      await setupDatabase();
-      if (process.env.DATABASE_URL) {
-        console.log("Using PostgreSQL database storage");
-        setStorageInstance(new DatabaseStorage());
-      } else {
-        console.log("Using memory storage - data will be lost on server restart");
-        setStorageInstance(new MemoryStorage());
-      }
+      console.log("❌ ERRO: Não foi possível conectar à base de dados local Advir");
+      console.log("Verifique se:");
+      console.log("- SQL Server está a correr no seu PC");
+      console.log("- Porta 1433 está acessível");
+      console.log("- Utilizador 'sa' tem password '1234'");
+      console.log("- Base de dados 'Advir' existe ou pode ser criada");
+      console.log("");
+      console.log("A aplicação NÃO funcionará sem a base de dados local!");
+      process.exit(1); // Terminar aplicação se não conseguir conectar
     }
   } catch (error) {
-    console.log("Erro ao conectar SQL Server, usando PostgreSQL...");
-    await setupDatabase();
-    if (process.env.DATABASE_URL) {
-      console.log("Using PostgreSQL database storage");
-      setStorageInstance(new DatabaseStorage());
-    } else {
-      console.log("Using memory storage - data will be lost on server restart");
-      setStorageInstance(new MemoryStorage());
-    }
+    console.log("❌ ERRO CRÍTICO ao conectar à base de dados Advir:", error);
+    console.log("A aplicação será terminada.");
+    process.exit(1);
   }
   
   const server = await registerRoutes(app);
