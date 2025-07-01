@@ -4,22 +4,20 @@ import mssql from 'mssql';
 let sqlServerPool: mssql.ConnectionPool | null = null;
 
 export async function initializeSqlServer() {
-  if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USERNAME || !process.env.DB_PASSWORD) {
+  if (!process.env.DB_SERVER || !process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD) {
     return false;
   }
 
   console.log("Configurando SQL Server...");
-  console.log(`Servidor: ${process.env.DB_HOST}:${process.env.DB_PORT || '1433'}`);
+  console.log(`Servidor: ${process.env.DB_SERVER}:${process.env.DB_PORT || '1433'}`);
   console.log(`Base de dados: ${process.env.DB_NAME}`);
-  console.log(`Utilizador: ${process.env.DB_USERNAME}`);
+  console.log(`Utilizador: ${process.env.DB_USER}`);
 
+  // Use the working DATABASE_URL first, then fallback to alternatives
   const connectionStrings = [
-    `Server=${process.env.DB_HOST}\\SQL2022;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-    `Server=${process.env.DB_HOST}\\PRIEXPRESS100;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-    `Server=${process.env.DB_HOST}\\SQL_LA_2025;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-    `Server=${process.env.DB_HOST}\\SQL2022V10;Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-    `Server=${process.env.DB_HOST},${process.env.DB_PORT || '1433'};Database=master;User Id=${process.env.DB_USERNAME};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
-  ];
+    process.env.DATABASE_URL,
+    `Server=${process.env.DB_SERVER};Database=${process.env.DB_NAME};User Id=${process.env.DB_USER};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
+  ].filter(Boolean);
 
   let workingConnectionString = null;
 
