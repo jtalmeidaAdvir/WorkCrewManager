@@ -36,42 +36,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
   setupAuth(app);
 
-  // Create a user (only for Directors to create new users)
-  app.post("/api/users/create", isDirector, async (req: any, res) => {
-    try {
-      const { firstName, lastName, email, tipoUser } = req.body;
-      
-      // Generate username and password
-      const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`.replace(/\s+/g, '');
-      const password = generatePassword();
-      const hashedPassword = await hashPassword(password);
-      
-      // Generate unique ID
-      const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-      
-      const newUser = await storage.createUser({
-        id: userId,
-        username,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        email,
-        tipoUser,
-      });
 
-      // Return user with plain password for the director to share
-      res.json({
-        user: newUser,
-        credentials: {
-          username,
-          password // Plain password to share with the new user
-        }
-      });
-    } catch (error) {
-      console.error("Error creating user:", error);
-      res.status(500).json({ message: "Failed to create user" });
-    }
-  });
 
   // Obras routes
   app.get("/api/obras", isAuthenticated, async (req, res) => {
@@ -86,7 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/obras", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser(req.user.id);
       if (!user || user.tipoUser !== "Diretor") {
         return res.status(403).json({ message: "Only Directors can create obras" });
       }
@@ -120,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registo Ponto routes
   app.get("/api/registo-ponto", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const registos = await storage.getRegistosPonto(userId);
       res.json(registos);
     } catch (error) {
@@ -131,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/registo-ponto/today", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const today = new Date().toISOString().split('T')[0];
       const registo = await storage.getRegistoPontoByDate(userId, today);
       res.json(registo || null);
@@ -143,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/registo-ponto/clock-in", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const today = new Date().toISOString().split('T')[0];
       const now = new Date().toTimeString().split(' ')[0];
 
@@ -179,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/registo-ponto/clock-out", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const today = new Date().toISOString().split('T')[0];
       const now = new Date().toTimeString().split(' ')[0];
 
@@ -214,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Equipas routes
   app.get("/api/equipas", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser(req.user.id);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -237,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/equipas", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser(req.user.id);
       if (!user || (user.tipoUser !== "Diretor" && user.tipoUser !== "Encarregado")) {
         return res.status(403).json({ message: "Only Directors and Supervisors can create teams" });
       }
@@ -258,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/equipas/:equipaId/members", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser(req.user.id);
       if (!user || (user.tipoUser !== "Diretor" && user.tipoUser !== "Encarregado")) {
         return res.status(403).json({ message: "Only Directors and Supervisors can add team members" });
       }
@@ -280,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Partes Diarias routes
   app.get("/api/partes-diarias", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const partes = await storage.getPartesDiarias(userId);
       res.json(partes);
     } catch (error) {
@@ -291,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/partes-diarias", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const parteData = {
         ...req.body,
         userId,
@@ -309,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stats routes
   app.get("/api/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const stats = await storage.getUserStats(userId);
       res.json(stats);
     } catch (error) {
@@ -321,7 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User management routes
   app.get("/api/users", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = req.user;
       if (!user || (user.tipoUser !== "Diretor" && user.tipoUser !== "Encarregado")) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -336,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/users", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = req.user;
       if (!user || user.tipoUser !== "Diretor") {
         return res.status(403).json({ message: "Only Directors can create users" });
       }
@@ -351,18 +316,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user type" });
       }
       
-      // Generate a unique ID for the new user
-      const newUserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate username and password
+      const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`.replace(/\s+/g, '');
+      const password = generatePassword();
+      const hashedPassword = await hashPassword(password);
+      
+      // Generate unique ID
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
       
       const newUser = await storage.createUser({
-        id: newUserId,
+        id: userId,
+        username,
+        password: hashedPassword,
         firstName,
         lastName,
         email,
         tipoUser,
       });
-      
-      res.json(newUser);
+
+      // Return user with plain password for the director to share
+      res.json({
+        user: newUser,
+        credentials: {
+          username,
+          password // Plain password to share with the new user
+        }
+      });
     } catch (error) {
       console.error("Error creating user:", error);
       res.status(500).json({ message: "Failed to create user" });
@@ -371,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/user/change-role", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { tipoUser } = req.body;
       
       if (!["Trabalhador", "Encarregado", "Diretor"].includes(tipoUser)) {
