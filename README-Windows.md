@@ -19,12 +19,17 @@ Este script faz tudo automaticamente:
 ./dev-windows.ps1
 ```
 
-### Opção 3: Usar cross-env através do npx
+### Opção 3: Usar script Node.js (Multiplataforma)
+```bash
+node scripts/dev.js
+```
+
+### Opção 4: Usar cross-env através do npx
 ```bash
 npx cross-env NODE_ENV=development tsx server/index.ts
 ```
 
-### Opção 4: Usar npm run dev com cross-env
+### Opção 5: Usar npm run dev com cross-env
 ```bash
 npx cross-env NODE_ENV=development npm run dev
 ```
