@@ -140,8 +140,10 @@ async function createTablesIfNotExist() {
           data NVARCHAR(10) NOT NULL,
           horaEntrada NVARCHAR(8),
           horaSaida NVARCHAR(8),
-          coordenadasEntrada NVARCHAR(255),
-          coordenadasSaida NVARCHAR(255),
+          totalHorasTrabalhadas DECIMAL(4,2),
+          totalTempoIntervalo DECIMAL(4,2),
+          latitude DECIMAL(10,8),
+          longitude DECIMAL(11,8),
           obraId INT,
           createdAt DATETIME2 DEFAULT GETDATE(),
           FOREIGN KEY (userId) REFERENCES users(id),
@@ -196,6 +198,32 @@ async function createTablesIfNotExist() {
       ELSE
       BEGIN
         PRINT 'Tables already exist'
+        
+        -- Update existing registo_ponto table if needed
+        IF EXISTS (SELECT * FROM sysobjects WHERE name='registo_ponto' AND xtype='U')
+        BEGIN
+          -- Add new columns if they don't exist
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'registo_ponto' AND COLUMN_NAME = 'latitude')
+          BEGIN
+            ALTER TABLE registo_ponto ADD latitude DECIMAL(10,8);
+            PRINT 'Added latitude column to registo_ponto';
+          END
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'registo_ponto' AND COLUMN_NAME = 'longitude')
+          BEGIN
+            ALTER TABLE registo_ponto ADD longitude DECIMAL(11,8);
+            PRINT 'Added longitude column to registo_ponto';
+          END
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'registo_ponto' AND COLUMN_NAME = 'totalHorasTrabalhadas')
+          BEGIN
+            ALTER TABLE registo_ponto ADD totalHorasTrabalhadas DECIMAL(4,2);
+            PRINT 'Added totalHorasTrabalhadas column to registo_ponto';
+          END
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'registo_ponto' AND COLUMN_NAME = 'totalTempoIntervalo')
+          BEGIN
+            ALTER TABLE registo_ponto ADD totalTempoIntervalo DECIMAL(4,2);
+            PRINT 'Added totalTempoIntervalo column to registo_ponto';
+          END
+        END
       END
     `);
     

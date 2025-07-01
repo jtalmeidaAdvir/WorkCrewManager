@@ -1,0 +1,323 @@
+alm@LAPTOP-PFQRJ2M7 MINGW64 ~/Desktop/ProjetosGIT/WorkCrewManager (8)/WorkCrewManager (main)
+$ npm install
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 582 packages, and audited 583 packages in 15s
+
+81 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (1 low, 8 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+jtalm@LAPTOP-PFQRJ2M7 MINGW64 ~/Desktop/ProjetosGIT/WorkCrewManager (8)/WorkCrewManager (main)
+$ npx cross-env NODE_ENV=development tsx server/index.ts
+[dotenv@17.0.0] injecting env (7) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+Tentando conectar à sua base SQL Server existente...
+Configurando SQL Server...
+Servidor: localhost:1433
+Base de dados: Advirww
+Utilizador: sa
+Tentativa 1 - conectar ao master...
+Base de dados verificada/criada com sucesso
+Conectando à base de dados alvo...
+Conectado ao SQL Server com sucesso!
+Criando/verificando tabelas...
+Database tables verified/created successfully
+✅ Conectado à base de dados Advir com sucesso!
+🔄 Usando SQL Server storage...
+✅ Utilizador admin já existe
+Using memory store for sessions - sessions will not persist across server restarts
+7:54:22 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+7:54:43 PM [express] GET /api/user 401 in 5ms
+7:54:50 PM [express] POST /api/login 200 in 104ms :: {"id":"user_1751391293605_pgvd0cls1","username"…
+7:54:50 PM [express] GET /api/stats 304 in 28ms :: {"hoursToday":0.71,"hoursWeek":0,"activeProjects"…
+7:54:50 PM [express] GET /api/registo-ponto/today 304 in 20ms :: {"id":5,"userId":"user_175139129360…
+7:54:50 PM [express] GET /api/partes-diarias 304 in 7ms :: []
+7:54:55 PM [express] GET /api/registo-ponto 304 in 78ms :: [{"id":5,"userId":"user_1751391293605_pgv…
+7:54:55 PM [express] GET /api/registo-ponto/current 200 in 80ms
+7:54:58 PM [express] GET /api/obras 304 in 19ms :: [{"id":1,"codigo":"4710-507","nome":"Jorge Almeid…
+7:54:59 PM [express] GET /api/obras/qr/5dbbc42a-66d0-4ad5-92f9-5b13f102c5b9 304 in 53ms :: {"id":1,"…
+Error creating registo ponto: RequestError: Invalid column name 'longitude'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'longitude'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'longitude'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 207,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: [
+    RequestError: Invalid column name 'latitude'.
+        at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:519:28)
+        at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+        at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+        at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+        at Readable.emit (node:events:519:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22)
+        at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 207,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: ''
+    }
+  ]
+}
+Error clocking in: RequestError: Invalid column name 'longitude'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'longitude'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'longitude'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 207,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: [
+    RequestError: Invalid column name 'latitude'.
+        at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:519:28)
+        at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+        at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+        at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+        at Readable.emit (node:events:519:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22)
+        at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 207,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: ''
+    }
+  ]
+}
+7:55:00 PM [express] POST /api/registo-ponto/clock-in 500 in 81ms :: {"message":"Failed to clock in"}
+7:55:15 PM [express] GET /api/obras/qr/5dbbc42a-66d0-4ad5-92f9-5b13f102c5b9 304 in 28ms :: {"id":1,"…
+Error creating registo ponto: RequestError: Invalid column name 'longitude'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'longitude'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'longitude'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 207,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: [
+    RequestError: Invalid column name 'latitude'.
+        at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:519:28)
+        at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+        at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+        at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+        at Readable.emit (node:events:519:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22)
+        at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 207,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: ''
+    }
+  ]
+}
+Error clocking in: RequestError: Invalid column name 'longitude'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'longitude'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'longitude'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 207,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: [
+    RequestError: Invalid column name 'latitude'.
+        at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:519:28)
+        at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+        at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+        at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager (8)\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+        at Readable.emit (node:events:519:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22)
+        at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 207,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: ''
+    }
+  ]
+}
+7:55:15 PM [express] POST /api/registo-ponto/clock-in 500 in 32ms :: {"message":"Failed to clock in"}
+
