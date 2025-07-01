@@ -91,7 +91,32 @@ app.use((req, res, next) => {
       // Try to set up PostgreSQL database first
       try {
         await setupDatabase();
-        setStorageInstance(new DatabaseStorage());
+        const dbStorage = new DatabaseStorage();
+        setStorageInstance(dbStorage);
+        
+        // Create initial admin user if it doesn't exist
+        try {
+          const adminUser = await dbStorage.getUserByUsername('admin');
+          if (!adminUser) {
+            const { hashPassword } = await import("./auth");
+            const hashedPassword = await hashPassword('admin123');
+            await dbStorage.createUser({
+              id: 'admin-1',
+              username: 'admin',
+              password: hashedPassword,
+              firstName: 'Admin',
+              lastName: 'System',
+              email: 'admin@system.com',
+              tipoUser: 'Diretor'
+            });
+            console.log("✅ Utilizador admin criado - username: admin, password: admin123");
+          } else {
+            console.log("✅ Utilizador admin já existe");
+          }
+        } catch (error) {
+          console.error("Erro ao criar utilizador admin:", error);
+        }
+        
         console.log("✅ Aplicação funcionando com PostgreSQL");
       } catch (dbError) {
         console.log("⚠️ PostgreSQL não disponível, usando memória temporária");
@@ -106,7 +131,32 @@ app.use((req, res, next) => {
     // Try to set up PostgreSQL database first
     try {
       await setupDatabase();
-      setStorageInstance(new DatabaseStorage());
+      const dbStorage = new DatabaseStorage();
+      setStorageInstance(dbStorage);
+      
+      // Create initial admin user if it doesn't exist
+      try {
+        const adminUser = await dbStorage.getUserByUsername('admin');
+        if (!adminUser) {
+          const { hashPassword } = await import("./auth");
+          const hashedPassword = await hashPassword('admin123');
+          await dbStorage.createUser({
+            id: 'admin-1',
+            username: 'admin',
+            password: hashedPassword,
+            firstName: 'Admin',
+            lastName: 'System',
+            email: 'admin@system.com',
+            tipoUser: 'Diretor'
+          });
+          console.log("✅ Utilizador admin criado - username: admin, password: admin123");
+        } else {
+          console.log("✅ Utilizador admin já existe");
+        }
+      } catch (error) {
+        console.error("Erro ao criar utilizador admin:", error);
+      }
+      
       console.log("✅ Aplicação funcionando com PostgreSQL");
     } catch (dbError) {
       console.log("⚠️ PostgreSQL não disponível, usando memória temporária");
