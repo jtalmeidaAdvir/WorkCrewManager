@@ -134,10 +134,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const registos = await storage.getRegistosPonto(userId);
       const todayRegistos = registos.filter((r: any) => r.data === today);
       
-      // Find the most recent open registo (has horaEntrada but no horaSaida)
-      const currentRegisto = todayRegistos
-        .sort((a: any, b: any) => b.id - a.id) // Most recent first
-        .find((r: any) => r.horaEntrada && !r.horaSaida);
+      // Sort by id descending (most recent first)
+      const sortedRegistos = todayRegistos.sort((a: any, b: any) => b.id - a.id);
+      
+      // Only consider current if the most recent registo doesn't have horaSaida
+      const mostRecentRegisto = sortedRegistos[0];
+      const currentRegisto = (mostRecentRegisto && 
+                             mostRecentRegisto.horaEntrada && 
+                             !mostRecentRegisto.horaSaida) ? mostRecentRegisto : null;
       
       res.json(currentRegisto || null);
     } catch (error) {
@@ -190,17 +194,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const today = getLisbonDateString();
       const now = getLisbonTimeString();
 
-      const existingRegisto = await storage.getRegistoPontoByDate(userId, today);
-      if (!existingRegisto || !existingRegisto.horaEntrada) {
+      // Get all today's registos to find the current open one
+      const registos = await storage.getRegistosPonto(userId);
+      const todayRegistos = registos.filter((r: any) => r.data === today);
+      
+      // Sort by id descending (most recent first) and find the first open registo
+      const sortedRegistos = todayRegistos.sort((a: any, b: any) => b.id - a.id);
+      const openRegisto = sortedRegistos.find((r: any) => r.horaEntrada && !r.horaSaida);
+
+      if (!openRegisto) {
         return res.status(400).json({ message: "Not clocked in today" });
       }
 
-      if (existingRegisto.horaSaida) {
-        return res.status(400).json({ message: "Already clocked out today" });
-      }
-
       // Calculate total hours
-      const entrada = new Date(`${today}T${existingRegisto.horaEntrada}`);
+      const entrada = new Date(`${today}T${openRegisto.horaEntrada}`);
       const saida = new Date(`${today}T${now}`);
       const totalHours = (saida.getTime() - entrada.getTime()) / (1000 * 60 * 60);
 
@@ -210,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalTempoIntervalo: req.body.totalTempoIntervalo || "0",
       };
 
-      const registo = await storage.updateRegistoPonto(existingRegisto.id, updateData);
+      const registo = await storage.updateRegistoPonto(openRegisto.id, updateData);
       res.json(registo);
     } catch (error) {
       console.error("Error clocking out:", error);
