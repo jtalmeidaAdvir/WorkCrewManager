@@ -19,26 +19,33 @@ export default function TimeTracking() {
     queryKey: ["/api/registo-ponto"],
   });
 
+  const isWorking = todayRegisto && 
+    (todayRegisto as any)?.horaEntrada && 
+    !(todayRegisto as any)?.horaSaida;
+
   // Debug logging
   console.log("Today registo:", todayRegisto);
   console.log("All registos:", registos);
   console.log("Today error:", todayError);
   console.log("Registos error:", registosError);
+  console.log("Is working:", isWorking);
 
   const clockInMutation = useMutation({
     mutationFn: async (data: { obraId: number; latitude?: number; longitude?: number }) => {
       return await apiRequest("POST", "/api/registo-ponto/clock-in", data);
     },
     onSuccess: async () => {
-      // Force refetch with a small delay to ensure database is updated
+      // Immediately invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      
+      // Force refetch after invalidation
       setTimeout(async () => {
-        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
-        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
-        await queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-        // Force refetch
         await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/today"] });
         await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto"] });
-      }, 500);
+        await queryClient.refetchQueries({ queryKey: ["/api/stats"] });
+      }, 100);
       
       toast({
         title: "Sucesso",
@@ -101,10 +108,6 @@ export default function TimeTracking() {
       clockInMutation.mutate({ obraId });
     }
   };
-
-  const isWorking = todayRegisto && 
-    (todayRegisto as any)?.horaEntrada && 
-    !(todayRegisto as any)?.horaSaida;
 
   return (
     <div className="p-4 lg:p-6 mobile-nav-padding">
