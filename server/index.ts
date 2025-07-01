@@ -47,7 +47,7 @@ app.use((req, res, next) => {
   
   // Conectar APENAS ao SQL Server local - base dados Advir
   try {
-    console.log("Conectando à base de dados local Advir...");
+    console.log("Tentando conectar à sua base SQL Server existente...");
     const sqlServerConnected = await initializeSqlServer();
     
     if (sqlServerConnected) {
