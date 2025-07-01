@@ -98,19 +98,40 @@ export default function QRScanner({ onClose, onScan }: QRScannerProps) {
         }
       }
       
-      if (stream && videoRef.current) {
-        console.log("Setting up video stream...");
+      if (!stream) {
+        console.error("No stream obtained");
+        setCameraError("Não foi possível obter acesso à câmera.");
+        return;
+      }
+      
+      if (!videoRef.current) {
+        console.error("Video element not available");
+        setCameraError("Elemento de vídeo não disponível.");
+        return;
+      }
+      
+      console.log("Setting up video stream...");
+      console.log("Stream tracks:", stream.getTracks().map(track => ({
+        kind: track.kind,
+        label: track.label,
+        enabled: track.enabled,
+        readyState: track.readyState
+      })));
+      
+      try {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         
         // Ensure autoplay works on mobile
         videoRef.current.setAttribute('playsinline', 'true');
         videoRef.current.setAttribute('muted', 'true');
+        videoRef.current.setAttribute('autoplay', 'true');
         
         // Wait for video to be ready and play
         const playVideo = async () => {
           try {
-            if (videoRef.current) {
+            if (videoRef.current && streamRef.current) {
+              console.log("Attempting to play video...");
               await videoRef.current.play();
               setCameraActive(true);
               console.log("Video playing successfully");
@@ -120,20 +141,40 @@ export default function QRScanner({ onClose, onScan }: QRScannerProps) {
                 description: "A câmera está agora ativa. Aponte para o código QR.",
               });
             }
-          } catch (playError) {
+          } catch (playError: any) {
             console.error("Video play error:", playError);
-            setCameraError("Erro ao reproduzir vídeo da câmera.");
+            setCameraError(`Erro ao reproduzir vídeo: ${playError?.message || 'Erro desconhecido'}`);
           }
         };
         
-        videoRef.current.onloadedmetadata = playVideo;
+        // Set up event listeners
+        videoRef.current.onloadedmetadata = () => {
+          console.log("Video metadata loaded");
+          playVideo();
+        };
+        
+        videoRef.current.onerror = (error) => {
+          console.error("Video error:", error);
+          setCameraError("Erro no elemento de vídeo.");
+        };
         
         // Fallback: try to play immediately if metadata is already loaded
         if (videoRef.current.readyState >= 1) {
+          console.log("Video already ready, playing immediately");
           playVideo();
         }
-      } else {
-        setCameraError("Falha ao configurar o stream da câmera.");
+        
+        // Additional fallback after a short delay
+        setTimeout(() => {
+          if (!cameraActive && videoRef.current && streamRef.current) {
+            console.log("Fallback: trying to play video after delay");
+            playVideo();
+          }
+        }, 1000);
+        
+      } catch (setupError: any) {
+        console.error("Stream setup error:", setupError);
+        setCameraError(`Erro ao configurar stream: ${setupError?.message || 'Erro desconhecido'}`);
       }
     } catch (error: any) {
       console.error("Camera error:", error);
@@ -160,11 +201,25 @@ export default function QRScanner({ onClose, onScan }: QRScannerProps) {
   };
 
   const stopCamera = () => {
+    console.log("Stopping camera...");
+    
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Stopped track: ${track.kind}`);
+      });
       streamRef.current = null;
     }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+      videoRef.current.onloadedmetadata = null;
+      videoRef.current.onerror = null;
+    }
+    
     setCameraActive(false);
+    setCameraError("");
+    setIsLoading(false);
   };
 
   // Cleanup on unmount
