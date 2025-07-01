@@ -54,6 +54,11 @@ export default function Users() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newUserCredentials, setNewUserCredentials] = useState<{
+    username: string;
+    password: string;
+    userName: string;
+  } | null>(null);
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["/api/users"],
@@ -71,13 +76,22 @@ export default function Users() {
 
   const createUserMutation = useMutation({
     mutationFn: async (data: UserFormData) => {
-      return await apiRequest("POST", "/api/users", data);
+      const response = await apiRequest("POST", "/api/users", data);
+      return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      
+      // Store credentials to show to the director
+      setNewUserCredentials({
+        username: result.credentials.username,
+        password: result.credentials.password,
+        userName: `${result.user.firstName} ${result.user.lastName}`
+      });
+      
       toast({
         title: "Utilizador criado",
-        description: "O novo utilizador foi criado com sucesso.",
+        description: "O novo utilizador foi criado com sucesso. Veja as credenciais abaixo.",
       });
       setIsDialogOpen(false);
       form.reset();
@@ -285,6 +299,57 @@ export default function Users() {
           </CardContent>
         </Card>
       )}
+
+      {/* Dialog para mostrar credenciais do novo utilizador */}
+      <Dialog open={!!newUserCredentials} onOpenChange={() => setNewUserCredentials(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-green-600">
+              Utilizador Criado com Sucesso!
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Credenciais para <strong>{newUserCredentials?.userName}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          
+          {newUserCredentials && (
+            <div className="space-y-4">
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-green-800">Usuário:</label>
+                    <div className="mt-1 p-2 bg-white rounded border border-green-300 font-mono text-sm">
+                      {newUserCredentials.username}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-green-800">Senha:</label>
+                    <div className="mt-1 p-2 bg-white rounded border border-green-300 font-mono text-sm">
+                      {newUserCredentials.password}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <p className="text-sm text-orange-800">
+                  <strong>Importante:</strong> Guarde estas credenciais e partilhe-as com o utilizador.
+                  Esta é a única vez que a senha será mostrada em texto simples.
+                </p>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => setNewUserCredentials(null)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Entendido
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
