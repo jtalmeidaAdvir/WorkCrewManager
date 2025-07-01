@@ -27,12 +27,14 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table (mandatory for Replit Auth)
+// User storage table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
+  username: varchar("username").unique().notNull(),
+  password: varchar("password").notNull(),
   email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
   profileImageUrl: varchar("profile_image_url"),
   tipoUser: varchar("tipo_user").notNull().default("Trabalhador"), // Trabalhador, Diretor, Encarregado
   createdAt: timestamp("created_at").defaultNow(),
@@ -159,8 +161,13 @@ export const partesDiariasRelations = relations(partesDiarias, ({ one }) => ({
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const userSchema = insertUserSchema.omit({
+  password: true,
 });
 
 export const insertObraSchema = createInsertSchema(obras).omit({

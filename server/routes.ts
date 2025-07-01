@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, hashPassword, generatePassword } from "./auth";
 import {
   insertObraSchema,
   insertRegistoPontoSchema,
@@ -11,19 +11,65 @@ import {
 } from "@shared/schema";
 import crypto from "crypto";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+// Authentication middleware
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+// Authorization middleware
+const isDirector = async (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  
+  const user = req.user;
+  if (user.tipoUser !== "Diretor") {
+    return res.status(403).json({ message: "Access denied. Director access required." });
+  }
+  next();
+};
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
+
+  // Create a user (only for Directors to create new users)
+  app.post("/api/users/create", isDirector, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const { firstName, lastName, email, tipoUser } = req.body;
+      
+      // Generate username and password
+      const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`.replace(/\s+/g, '');
+      const password = generatePassword();
+      const hashedPassword = await hashPassword(password);
+      
+      // Generate unique ID
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      
+      const newUser = await storage.createUser({
+        id: userId,
+        username,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        email,
+        tipoUser,
+      });
+
+      // Return user with plain password for the director to share
+      res.json({
+        user: newUser,
+        credentials: {
+          username,
+          password // Plain password to share with the new user
+        }
+      });
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Failed to create user" });
     }
   });
 
