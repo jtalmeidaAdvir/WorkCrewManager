@@ -11,22 +11,35 @@ export default function TimeTracking() {
   const { toast } = useToast();
   const [showQRScanner, setShowQRScanner] = useState(false);
 
-  const { data: todayRegisto } = useQuery({
+  const { data: todayRegisto, error: todayError } = useQuery({
     queryKey: ["/api/registo-ponto/today"],
   });
 
-  const { data: registos } = useQuery({
+  const { data: registos, error: registosError } = useQuery({
     queryKey: ["/api/registo-ponto"],
   });
+
+  // Debug logging
+  console.log("Today registo:", todayRegisto);
+  console.log("All registos:", registos);
+  console.log("Today error:", todayError);
+  console.log("Registos error:", registosError);
 
   const clockInMutation = useMutation({
     mutationFn: async (data: { obraId: number; latitude?: number; longitude?: number }) => {
       return await apiRequest("POST", "/api/registo-ponto/clock-in", data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    onSuccess: async () => {
+      // Force refetch with a small delay to ensure database is updated
+      setTimeout(async () => {
+        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
+        await queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+        // Force refetch
+        await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto"] });
+      }, 500);
+      
       toast({
         title: "Sucesso",
         description: "Ponto de entrada registado com sucesso",
@@ -45,10 +58,17 @@ export default function TimeTracking() {
     mutationFn: async () => {
       return await apiRequest("POST", "/api/registo-ponto/clock-out", {});
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    onSuccess: async () => {
+      // Force refetch with a small delay to ensure database is updated
+      setTimeout(async () => {
+        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
+        await queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+        // Force refetch
+        await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto"] });
+      }, 500);
+      
       toast({
         title: "Sucesso",
         description: "Ponto de saída registado com sucesso",
@@ -82,7 +102,9 @@ export default function TimeTracking() {
     }
   };
 
-  const isWorking = todayRegisto?.horaEntrada && !todayRegisto?.horaSaida;
+  const isWorking = todayRegisto && 
+    (todayRegisto as any)?.horaEntrada && 
+    !(todayRegisto as any)?.horaSaida;
 
   return (
     <div className="p-4 lg:p-6 mobile-nav-padding">
@@ -104,15 +126,15 @@ export default function TimeTracking() {
                 <div>
                   <p className="text-sm font-medium text-green-800">A Trabalhar</p>
                   <p className="text-xs text-green-600">
-                    Entrada: {todayRegisto?.horaEntrada}
+                    Entrada: {(todayRegisto as any)?.horaEntrada}
                   </p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-lg font-semibold text-green-800">
-                  {todayRegisto?.horaEntrada && (() => {
+                  {(todayRegisto as any)?.horaEntrada && (() => {
                     const now = new Date();
-                    const entrada = new Date(`${todayRegisto.data}T${todayRegisto.horaEntrada}`);
+                    const entrada = new Date(`${(todayRegisto as any).data}T${(todayRegisto as any).horaEntrada}`);
                     const elapsed = (now.getTime() - entrada.getTime()) / (1000 * 60 * 60);
                     const hours = Math.floor(elapsed);
                     const minutes = Math.floor((elapsed % 1) * 60);
@@ -154,7 +176,7 @@ export default function TimeTracking() {
             <Button
               className="flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600"
               onClick={() => setShowQRScanner(true)}
-              disabled={isWorking || clockInMutation.isPending}
+              disabled={!!isWorking || clockInMutation.isPending}
             >
               <i className="fas fa-qrcode mr-2"></i>
               Scan QR para Entrar
@@ -179,7 +201,7 @@ export default function TimeTracking() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {registos?.slice(0, 10).map((registo: any) => (
+            {Array.isArray(registos) && registos.slice(0, 10).map((registo: any) => (
               <div key={registo.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div>
