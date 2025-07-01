@@ -13,61 +13,46 @@ export async function initializeSqlServer() {
   console.log(`Base de dados: ${process.env.DB_NAME}`);
   console.log(`Utilizador: ${process.env.DB_USER}`);
 
-  // Use the working DATABASE_URL first, then fallback to alternatives
+  // First try to connect to master database to create target database if needed
+  const masterConnectionString = `Server=${process.env.DB_SERVER};Database=master;User Id=${process.env.DB_USER};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`;
+  
+  // Then use target database connection strings
   const connectionStrings = [
     process.env.DATABASE_URL,
     `Server=${process.env.DB_SERVER};Database=${process.env.DB_NAME};User Id=${process.env.DB_USER};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`,
   ].filter(Boolean);
 
-  let workingConnectionString = null;
-
-  for (let i = 0; i < connectionStrings.length; i++) {
-    const connectionString = connectionStrings[i];
-    if (!connectionString) continue;
-    
-    console.log(`Tentativa ${i + 1}...`);
-    try {
-      const testPool = new mssql.ConnectionPool(connectionString as string);
-      
-      // Set timeout to prevent hanging
-      const connectPromise = testPool.connect();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout')), 3000)
-      );
-      
-      await Promise.race([connectPromise, timeoutPromise]);
-      workingConnectionString = connectionStrings[i];
-      await testPool.close();
-      console.log(`Conexão bem-sucedida na tentativa ${i + 1}!`);
-      break;
-    } catch (error) {
-      console.log(`Tentativa ${i + 1} falhou`);
-    }
-  }
-
-  if (!workingConnectionString) {
-    console.log("Não foi possível conectar ao SQL Server");
-    return false;
-  }
-
   try {
-    // Create database if needed
-    const masterPool = new mssql.ConnectionPool(workingConnectionString);
-    await masterPool.connect();
+    // Step 1: Connect to master database and create target database if needed
+    console.log("Tentativa 1 - conectar ao master...");
+    const masterPool = new mssql.ConnectionPool(masterConnectionString);
+    
+    const connectPromise = masterPool.connect();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection timeout')), 3000)
+    );
+    
+    await Promise.race([connectPromise, timeoutPromise]);
     
     const createDbQuery = `
       IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '${process.env.DB_NAME}')
       BEGIN
         CREATE DATABASE [${process.env.DB_NAME}]
-        PRINT 'Base de dados criada'
+        PRINT 'Base de dados ${process.env.DB_NAME} criada com sucesso'
+      END
+      ELSE
+      BEGIN
+        PRINT 'Base de dados ${process.env.DB_NAME} já existe'
       END
     `;
     
     await masterPool.request().query(createDbQuery);
     await masterPool.close();
+    console.log("Base de dados verificada/criada com sucesso");
     
-    // Connect to target database
-    const targetConnectionString = workingConnectionString.replace('Database=master', `Database=${process.env.DB_NAME}`);
+    // Step 2: Connect to target database
+    console.log("Conectando à base de dados alvo...");
+    const targetConnectionString = `Server=${process.env.DB_SERVER};Database=${process.env.DB_NAME};User Id=${process.env.DB_USER};Password=${process.env.DB_PASSWORD};TrustServerCertificate=true;`;
     sqlServerPool = new mssql.ConnectionPool(targetConnectionString);
     await sqlServerPool.connect();
     
