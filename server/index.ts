@@ -88,14 +88,31 @@ app.use((req, res, next) => {
       console.log("");
       console.log("🔄 Usando PostgreSQL temporariamente para funcionar...");
       
-      // Usar PostgreSQL como fallback temporário
-      setStorageInstance(new MemoryStorage());
-      console.log("✅ Aplicação funcionando (dados temporários)");
+      // Try to set up PostgreSQL database first
+      try {
+        await setupDatabase();
+        setStorageInstance(new DatabaseStorage());
+        console.log("✅ Aplicação funcionando com PostgreSQL");
+      } catch (dbError) {
+        console.log("⚠️ PostgreSQL não disponível, usando memória temporária");
+        setStorageInstance(new MemoryStorage());
+        console.log("✅ Aplicação funcionando (dados temporários)");
+      }
     }
   } catch (error) {
     console.log("❌ ERRO ao conectar SQL Server:", error);
-    console.log("🔄 Usando storage temporário para funcionar...");
-    setStorageInstance(new MemoryStorage());
+    console.log("🔄 Usando PostgreSQL como fallback...");
+    
+    // Try to set up PostgreSQL database first
+    try {
+      await setupDatabase();
+      setStorageInstance(new DatabaseStorage());
+      console.log("✅ Aplicação funcionando com PostgreSQL");
+    } catch (dbError) {
+      console.log("⚠️ PostgreSQL não disponível, usando memória temporária");
+      setStorageInstance(new MemoryStorage());
+      console.log("✅ Aplicação funcionando (dados temporários)");
+    }
   }
   
   const server = await registerRoutes(app);
