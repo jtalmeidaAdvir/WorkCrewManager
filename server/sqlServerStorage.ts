@@ -360,7 +360,90 @@ export class SqlServerStorage implements IStorage {
   }
 
   async getEquipas(): Promise<(EquipaObra & { obra: Obra; encarregado: User; membros: (EquipaMembros & { user: User })[] })[]> {
-    return [];
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const result = await pool.request().query(`
+        SELECT 
+          e.id, e.nome, e.obraId, e.encarregadoId, e.createdAt,
+          o.id as obra_id, o.codigo as obra_codigo, o.nome as obra_nome, o.localizacao as obra_localizacao, o.estado as obra_estado, o.qrCode as obra_qrCode, o.createdAt as obra_createdAt,
+          u.id as encarregado_id, u.username as encarregado_username, u.firstName as encarregado_firstName, u.lastName as encarregado_lastName, u.email as encarregado_email, u.tipoUser as encarregado_tipoUser
+        FROM equipa_obra e
+        LEFT JOIN obras o ON e.obraId = o.id
+        LEFT JOIN users u ON e.encarregadoId = u.id
+        ORDER BY e.id
+      `);
+      
+      const equipas: (EquipaObra & { obra: Obra; encarregado: User; membros: (EquipaMembros & { user: User })[] })[] = [];
+      
+      for (const row of result.recordset) {
+        // Get members for this equipa
+        const membersResult = await pool.request()
+          .input('equipaId', row.id)
+          .query(`
+            SELECT 
+              em.id, em.equipaId, em.userId,
+              u.id as user_id, u.username, u.firstName, u.lastName, u.email, u.tipoUser
+            FROM equipa_membros em
+            LEFT JOIN users u ON em.userId = u.id
+            WHERE em.equipaId = @equipaId
+          `);
+        
+        const membros = membersResult.recordset.map(memberRow => ({
+          id: memberRow.id,
+          equipaId: memberRow.equipaId,
+          userId: memberRow.userId,
+          user: {
+            id: memberRow.user_id,
+            username: memberRow.username,
+            firstName: memberRow.firstName,
+            lastName: memberRow.lastName,
+            email: memberRow.email,
+            tipoUser: memberRow.tipoUser,
+            password: '', // Don't return password
+            profileImageUrl: null,
+            createdAt: null,
+            updatedAt: null
+          }
+        }));
+        
+        equipas.push({
+          id: row.id,
+          nome: row.nome,
+          obraId: row.obraId,
+          encarregadoId: row.encarregadoId,
+          createdAt: row.createdAt,
+          obra: {
+            id: row.obra_id,
+            codigo: row.obra_codigo,
+            nome: row.obra_nome,
+            localizacao: row.obra_localizacao,
+            estado: row.obra_estado,
+            qrCode: row.obra_qrCode,
+            createdAt: row.obra_createdAt
+          },
+          encarregado: {
+            id: row.encarregado_id,
+            username: row.encarregado_username,
+            firstName: row.encarregado_firstName,
+            lastName: row.encarregado_lastName,
+            email: row.encarregado_email,
+            tipoUser: row.encarregado_tipoUser,
+            password: '', // Don't return password
+            profileImageUrl: null,
+            createdAt: null,
+            updatedAt: null
+          },
+          membros
+        });
+      }
+      
+      return equipas;
+    } catch (error) {
+      console.error("Error getting equipas:", error);
+      return [];
+    }
   }
 
   async getEquipasByEncarregado(encarregadoId: string): Promise<(EquipaObra & { obra: Obra; membros: (EquipaMembros & { user: User })[] })[]> {
