@@ -39,7 +39,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Users as UsersIcon } from "lucide-react";
+import { UserPlus, Users as UsersIcon, Eye } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const userSchema = z.object({
   firstName: z.string().min(1, "Nome é obrigatório"),
@@ -53,11 +54,19 @@ type UserFormData = z.infer<typeof userSchema>;
 export default function Users() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newUserCredentials, setNewUserCredentials] = useState<{
     username: string;
     password: string;
     userName: string;
+  } | null>(null);
+  const [viewCredentials, setViewCredentials] = useState<{
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    message: string;
   } | null>(null);
 
   const { data: users = [], isLoading } = useQuery({
@@ -111,6 +120,23 @@ export default function Users() {
       toast({
         title: "Erro",
         description: "Não foi possível criar o utilizador.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const viewCredentialsMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await apiRequest("GET", `/api/users/${userId}/credentials`);
+      return await response.json();
+    },
+    onSuccess: (result) => {
+      setViewCredentials(result);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível obter as credenciais do utilizador.",
         variant: "destructive",
       });
     },
@@ -268,12 +294,26 @@ export default function Users() {
               <CardDescription>{user.email}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 mb-3">
                 <p>ID: {user.id}</p>
                 {user.createdAt && (
                   <p>Criado: {new Date(user.createdAt).toLocaleDateString('pt-PT')}</p>
                 )}
               </div>
+              
+              {/* Botão para ver credenciais - apenas para diretores */}
+              {currentUser?.tipoUser === "Diretor" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => viewCredentialsMutation.mutate(user.id)}
+                  disabled={viewCredentialsMutation.isPending}
+                  className="w-full"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  {viewCredentialsMutation.isPending ? "A carregar..." : "Ver Credenciais"}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -344,6 +384,56 @@ export default function Users() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   Entendido
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para mostrar credenciais existentes (apenas username) */}
+      <Dialog open={!!viewCredentials} onOpenChange={() => setViewCredentials(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-blue-600">
+              Credenciais do Utilizador
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Informações de acesso para <strong>{viewCredentials?.firstName} {viewCredentials?.lastName}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          
+          {viewCredentials && (
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-blue-800">Usuário:</label>
+                    <div className="mt-1 p-2 bg-white rounded border border-blue-300 font-mono text-sm">
+                      {viewCredentials.username}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-blue-800">Email:</label>
+                    <div className="mt-1 p-2 bg-white rounded border border-blue-300 text-sm">
+                      {viewCredentials.email}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm text-yellow-800">
+                  <strong>Nota:</strong> {viewCredentials.message}
+                </p>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => setViewCredentials(null)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Fechar
                 </Button>
               </div>
             </div>

@@ -371,6 +371,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint para diretor ver credenciais de um utilizador
+  app.get("/api/users/:userId/credentials", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = req.user;
+      if (!currentUser || currentUser.tipoUser !== "Diretor") {
+        return res.status(403).json({ message: "Only Directors can view user credentials" });
+      }
+
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Retorna só o username (a senha não pode ser recuperada por estar hasheada)
+      res.json({
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        message: "A senha está encriptada e não pode ser recuperada. Se necessário, crie um novo utilizador."
+      });
+    } catch (error) {
+      console.error("Error fetching user credentials:", error);
+      res.status(500).json({ message: "Failed to fetch user credentials" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
