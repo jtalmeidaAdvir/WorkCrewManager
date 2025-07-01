@@ -8,11 +8,8 @@ neonConfig.webSocketConstructor = ws;
 // Check if SQL Server is configured
 const isSqlServerConfigured = process.env.DB_SERVER && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME;
 
-if (!isSqlServerConfigured && !process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL or SQL Server configuration must be set. Configure DB_SERVER, DB_USER, DB_PASSWORD, and DB_NAME for SQL Server.",
-  );
-}
+// Only require configuration if we're trying to use PostgreSQL
+// SQL Server configuration is optional and handled by sqlserver.ts
 
 // Only create PostgreSQL connection if DATABASE_URL exists and no SQL Server config
 let pool: Pool | null = null;
