@@ -5,7 +5,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupDatabase } from "./setup-database";
-import { initializeSqlServer } from "./sqlserver";
 
 const app = express();
 app.use(express.json());
@@ -42,17 +41,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Tentar configurar SQL Server primeiro, depois PostgreSQL como fallback
-  try {
-    const sqlServerConnected = await initializeSqlServer();
-    
-    if (!sqlServerConnected) {
-      await setupDatabase();
-    }
-  } catch (error) {
-    console.log("🔄 A continuar com armazenamento em memória...");
-    await setupDatabase();
-  }
+  // Configurar PostgreSQL database
+  await setupDatabase();
   
   const server = await registerRoutes(app);
 
