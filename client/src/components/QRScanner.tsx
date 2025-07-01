@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Camera, CameraOff } from "lucide-react";
 
 interface QRScannerProps {
   onClose: () => void;
@@ -15,10 +16,69 @@ interface QRScannerProps {
 export default function QRScanner({ onClose, onScan }: QRScannerProps) {
   const { toast } = useToast();
   const [qrCode, setQrCode] = useState("");
+  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const { data: obras } = useQuery({
     queryKey: ["/api/obras"],
   });
+
+  // Camera functionality
+  const startCamera = async () => {
+    try {
+      setCameraError("");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" } // Use back camera if available
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCameraActive(true);
+      }
+    } catch (error) {
+      setCameraError("Não foi possível aceder à câmera. Verifique as permissões.");
+      console.error("Camera error:", error);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setCameraActive(false);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
+  // Simple QR detection (basic implementation)
+  const captureFrame = () => {
+    if (!videoRef.current || !cameraActive) return;
+    
+    const canvas = document.createElement('canvas');
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0);
+      // In a real implementation, you would use a QR code library here
+      // For now, we'll show a message to use manual input
+      toast({
+        title: "Dica",
+        description: "Use a entrada manual para inserir o código QR",
+      });
+    }
+  };
 
   const scanMutation = useMutation({
     mutationFn: async (qrCode: string) => {
@@ -64,13 +124,53 @@ export default function QRScanner({ onClose, onScan }: QRScannerProps) {
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Camera placeholder */}
-          <div className="aspect-square bg-black rounded-lg flex items-center justify-center">
-            <div className="text-white text-center">
-              <i className="fas fa-camera text-4xl mb-2"></i>
-              <p className="text-sm">Câmara não disponível</p>
-              <p className="text-xs text-gray-300">Insira o código manualmente</p>
-            </div>
+          {/* Camera */}
+          <div className="aspect-square bg-black rounded-lg flex items-center justify-center relative overflow-hidden">
+            {cameraActive ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 border-2 border-yellow-400 rounded-lg">
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-white border-dashed"></div>
+                </div>
+                <Button
+                  onClick={captureFrame}
+                  className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white text-black hover:bg-gray-200"
+                  size="sm"
+                >
+                  Capturar
+                </Button>
+                <Button
+                  onClick={stopCamera}
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-4 right-4 bg-black/50 text-white border-white"
+                >
+                  <CameraOff className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <div className="text-white text-center">
+                <Camera className="w-12 h-12 mx-auto mb-2" />
+                <p className="text-sm mb-2">Câmera</p>
+                {cameraError && (
+                  <p className="text-xs text-red-300 mb-2">{cameraError}</p>
+                )}
+                <Button
+                  onClick={startCamera}
+                  variant="outline"
+                  size="sm"
+                  className="text-white border-white hover:bg-white hover:text-black"
+                >
+                  Ativar Câmera
+                </Button>
+              </div>
+            )}
           </div>
           
           {/* Manual input */}
@@ -85,7 +185,7 @@ export default function QRScanner({ onClose, onScan }: QRScannerProps) {
           </div>
           
           {/* Quick select from available obras */}
-          {obras && obras.length > 0 && (
+          {Array.isArray(obras) && obras.length > 0 && (
             <div className="space-y-2">
               <Label>Ou selecione uma obra:</Label>
               <div className="space-y-1 max-h-32 overflow-y-auto">

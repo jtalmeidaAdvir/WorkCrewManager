@@ -178,6 +178,9 @@ export const insertObraSchema = createInsertSchema(obras).omit({
 export const insertRegistoPontoSchema = createInsertSchema(registoPonto).omit({
   id: true,
   createdAt: true,
+}).extend({
+  latitude: z.union([z.string(), z.number()]).transform(String).nullable(),
+  longitude: z.union([z.string(), z.number()]).transform(String).nullable(),
 });
 
 export const insertEquipaObraSchema = createInsertSchema(equipaObra).omit({
