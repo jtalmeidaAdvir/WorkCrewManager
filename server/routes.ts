@@ -400,6 +400,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint para diretor redefinir senha de um utilizador
+  app.post("/api/users/:userId/reset-password", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = req.user;
+      if (!currentUser || currentUser.tipoUser !== "Diretor") {
+        return res.status(403).json({ message: "Only Directors can reset passwords" });
+      }
+
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Generate new password and hash it
+      const newPassword = generatePassword();
+      const hashedPassword = await hashPassword(newPassword);
+
+      // Update user password in database
+      await storage.updateUserPassword(userId, hashedPassword);
+
+      res.json({
+        username: user.username,
+        newPassword: newPassword,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        message: "Password reset successfully"
+      });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -129,6 +129,7 @@ Changelog:
 - July 01, 2025. Implemented complete user management system allowing directors to create and manage workers, supervisors, and other directors through dedicated UI
 - July 01, 2025. Fixed team creation system to use real users from database instead of hardcoded fictional users
 - July 01, 2025. MIGRATED from Replit Auth to local authentication system with username/password login, director can create users and see generated credentials to distribute manually
+- July 01, 2025. Added password reset functionality allowing directors to generate new passwords for existing users and view the new credentials
 ```
 
 ## User Preferences

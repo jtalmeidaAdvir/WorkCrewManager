@@ -39,7 +39,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Users as UsersIcon, Eye } from "lucide-react";
+import { UserPlus, Users as UsersIcon, Eye, RefreshCw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const userSchema = z.object({
@@ -66,6 +66,13 @@ export default function Users() {
     firstName: string;
     lastName: string;
     email: string;
+    message: string;
+  } | null>(null);
+  const [resetPasswordResult, setResetPasswordResult] = useState<{
+    username: string;
+    newPassword: string;
+    firstName: string;
+    lastName: string;
     message: string;
   } | null>(null);
 
@@ -137,6 +144,28 @@ export default function Users() {
       toast({
         title: "Erro",
         description: "Não foi possível obter as credenciais do utilizador.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await apiRequest("POST", `/api/users/${userId}/reset-password`);
+      return await response.json();
+    },
+    onSuccess: (result) => {
+      setResetPasswordResult(result);
+      toast({
+        title: "Senha redefinida",
+        description: `Nova senha gerada para ${result.firstName} ${result.lastName}`,
+        variant: "default",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível redefinir a senha do utilizador.",
         variant: "destructive",
       });
     },
@@ -301,18 +330,31 @@ export default function Users() {
                 )}
               </div>
               
-              {/* Botão para ver credenciais - apenas para diretores */}
+              {/* Botões para ver credenciais e redefinir senha - apenas para diretores */}
               {currentUser?.tipoUser === "Diretor" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => viewCredentialsMutation.mutate(user.id)}
-                  disabled={viewCredentialsMutation.isPending}
-                  className="w-full"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  {viewCredentialsMutation.isPending ? "A carregar..." : "Ver Credenciais"}
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => viewCredentialsMutation.mutate(user.id)}
+                    disabled={viewCredentialsMutation.isPending}
+                    className="w-full"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    {viewCredentialsMutation.isPending ? "A carregar..." : "Ver Credenciais"}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => resetPasswordMutation.mutate(user.id)}
+                    disabled={resetPasswordMutation.isPending}
+                    className="w-full text-orange-600 hover:text-orange-700 border-orange-300 hover:border-orange-400"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    {resetPasswordMutation.isPending ? "A redefinir..." : "Redefinir Senha"}
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -434,6 +476,57 @@ export default function Users() {
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   Fechar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para mostrar nova senha após redefinição */}
+      <Dialog open={!!resetPasswordResult} onOpenChange={() => setResetPasswordResult(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-orange-600">
+              Senha Redefinida com Sucesso
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Nova senha gerada para <strong>{resetPasswordResult?.firstName} {resetPasswordResult?.lastName}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          
+          {resetPasswordResult && (
+            <div className="space-y-4">
+              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-orange-800">Usuário:</label>
+                    <div className="mt-1 p-2 bg-white rounded border border-orange-300 font-mono text-sm">
+                      {resetPasswordResult.username}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-orange-800">Nova Senha:</label>
+                    <div className="mt-1 p-2 bg-white rounded border border-orange-300 font-mono text-sm font-bold text-orange-700">
+                      {resetPasswordResult.newPassword}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm text-yellow-800">
+                  <strong>Importante:</strong> Anote estas credenciais e partilhe-as com o utilizador. 
+                  Esta é a única vez que a senha será exibida em texto claro.
+                </p>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => setResetPasswordResult(null)}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  Entendido
                 </Button>
               </div>
             </div>
