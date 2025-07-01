@@ -125,6 +125,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/registo-ponto/current", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const today = getLisbonDateString();
+      
+      // Get all today's registos
+      const registos = await storage.getRegistosPonto(userId);
+      const todayRegistos = registos.filter((r: any) => r.data === today);
+      
+      // Find the most recent open registo (has horaEntrada but no horaSaida)
+      const currentRegisto = todayRegistos
+        .sort((a: any, b: any) => b.id - a.id) // Most recent first
+        .find((r: any) => r.horaEntrada && !r.horaSaida);
+      
+      res.json(currentRegisto || null);
+    } catch (error) {
+      console.error("Error fetching current registo:", error);
+      res.status(500).json({ message: "Failed to fetch current registo" });
+    }
+  });
+
   app.post("/api/registo-ponto/clock-in", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -133,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if already clocked in today
       const existingRegisto = await storage.getRegistoPontoByDate(userId, today);
-      if (existingRegisto && existingRegisto.horaEntrada) {
+      if (existingRegisto && existingRegisto.horaEntrada && !existingRegisto.horaSaida) {
         return res.status(400).json({ message: "Already clocked in today" });
       }
 
@@ -148,7 +169,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const validatedData = insertRegistoPontoSchema.parse(registoData);
       
-      if (existingRegisto) {
+      // If there's an existing registo that hasn't been closed (no horaSaida), update it
+      // Otherwise, create a new registo (allows multiple entries per day)
+      if (existingRegisto && !existingRegisto.horaSaida) {
         const registo = await storage.updateRegistoPonto(existingRegisto.id, validatedData);
         res.json(registo);
       } else {

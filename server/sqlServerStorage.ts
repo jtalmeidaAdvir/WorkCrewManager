@@ -299,8 +299,10 @@ export class SqlServerStorage implements IStorage {
         .query(`
           SELECT * FROM registo_ponto 
           WHERE userId = @userId AND data = @data
+          ORDER BY id DESC
         `);
       
+      // Return the most recent record for the day
       return result.recordset[0];
     } catch (error) {
       console.error("Error getting registo ponto by date:", error);

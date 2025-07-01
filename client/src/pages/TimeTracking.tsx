@@ -19,12 +19,17 @@ export default function TimeTracking() {
     queryKey: ["/api/registo-ponto"],
   });
 
-  const isWorking = todayRegisto && 
-    (todayRegisto as any)?.horaEntrada && 
-    !(todayRegisto as any)?.horaSaida;
+  const { data: currentRegisto } = useQuery({
+    queryKey: ["/api/registo-ponto/current"],
+  });
+
+  const isWorking = currentRegisto && 
+    (currentRegisto as any)?.horaEntrada && 
+    !(currentRegisto as any)?.horaSaida;
 
   // Debug logging
   console.log("Today registo:", todayRegisto);
+  console.log("Current registo:", currentRegisto);
   console.log("All registos:", registos);
   console.log("Today error:", todayError);
   console.log("Registos error:", registosError);
@@ -37,12 +42,14 @@ export default function TimeTracking() {
     onSuccess: async () => {
       // Immediately invalidate and refetch
       await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/current"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       
       // Force refetch after invalidation
       setTimeout(async () => {
         await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/current"] });
         await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto"] });
         await queryClient.refetchQueries({ queryKey: ["/api/stats"] });
       }, 100);
@@ -69,10 +76,12 @@ export default function TimeTracking() {
       // Force refetch with a small delay to ensure database is updated
       setTimeout(async () => {
         await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto/current"] });
         await queryClient.invalidateQueries({ queryKey: ["/api/registo-ponto"] });
         await queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
         // Force refetch
         await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/today"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto/current"] });
         await queryClient.refetchQueries({ queryKey: ["/api/registo-ponto"] });
       }, 500);
       
