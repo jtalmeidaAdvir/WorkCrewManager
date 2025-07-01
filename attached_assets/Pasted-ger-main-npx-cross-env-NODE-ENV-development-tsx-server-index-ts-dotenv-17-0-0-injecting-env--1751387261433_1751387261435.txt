@@ -1,0 +1,208 @@
+ger (main)
+$ npx cross-env NODE_ENV=development tsx server/index.ts
+[dotenv@17.0.0] injecting env (7) from .env – 🔐 encrypt with dotenvx: https://dotenvx.com
+Tentando conectar à sua base SQL Server existente...
+Configurando SQL Server...
+Servidor: localhost:1433
+Base de dados: Advir
+Utilizador: sa
+Tentativa 1 - conectar ao master...
+Base de dados verificada/criada com sucesso
+Conectando à base de dados alvo...
+Conectado ao SQL Server com sucesso!
+Criando/verificando tabelas...
+Error creating tables: RequestError: Could not drop object 'registo_ponto' because it is referenced by a FOREIGN KEY constraint.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Could not drop object 'registo_ponto' because it is referenced by a FOREIGN KEY constraint.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 3726,
+      state: 1,
+      class: 16,
+      message: "Could not drop object 'registo_ponto' because it is referenced by a FOREIGN KEY constraint.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 9
+    }
+  },
+  number: 3726,
+  lineNumber: 9,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: []
+}
+✅ Conectado à base de dados Advir com sucesso!
+🔄 Usando SQL Server storage...
+✅ Utilizador admin já existe
+Using memory store for sessions - sessions will not persist across server restarts
+5:26:30 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+5:26:37 PM [express] GET /api/user 401 in 5ms
+5:26:43 PM [express] POST /api/login 200 in 38ms :: {"id":"user_1751384881081_36da4rpid","username":…
+5:26:43 PM [express] GET /api/registo-ponto/today 304 in 19ms
+5:26:43 PM [express] GET /api/stats 304 in 22ms :: {"hoursToday":0,"hoursWeek":0,"activeProjects":0,…
+5:26:43 PM [express] GET /api/partes-diarias 304 in 13ms :: []
+5:26:45 PM [express] GET /api/registo-ponto 304 in 14ms :: []
+5:26:47 PM [express] GET /api/users 304 in 15ms :: [{"id":"user_1751384881081_36da4rpid","username":…
+Error getting obras: RequestError: Invalid object name 'obras'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid object name 'obras'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 208,
+      state: 1,
+      class: 16,
+      message: "Invalid object name 'obras'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 1
+    }
+  },
+  number: 208,
+  lineNumber: 1,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: []
+}
+5:26:50 PM [express] GET /api/obras 304 in 17ms :: []
+Error creating obra: RequestError: Invalid object name 'obras'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid object name 'obras'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 208,
+      state: 1,
+      class: 16,
+      message: "Invalid object name 'obras'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 208,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: []
+}
+Error creating obra: RequestError: Invalid object name 'obras'.
+    at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:519:28)
+    at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+    at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+    at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+    at Readable.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid object name 'obras'.
+      at handleError (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:519:28)
+      at emit (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\connection.ts:1927:18)
+      at onErrorMessage (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\handler.ts:386:21)
+      at token (C:\Users\jtalm\Desktop\ProjetosGIT\WorkCrewManager\WorkCrewManager\node_modules\tedious\src\token\token-stream-parser.ts:23:55)
+      at Readable.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 208,
+      state: 1,
+      class: 16,
+      message: "Invalid object name 'obras'.",
+      serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 208,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'LAPTOP-PFQRJ2M7\\PRIEXPRESS100',
+  procName: '',
+  precedingErrors: []
+}
+5:27:01 PM [express] POST /api/obras 500 in 11ms :: {"message":"Failed to create obra"}

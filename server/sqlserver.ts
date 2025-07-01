@@ -79,6 +79,20 @@ async function createTablesIfNotExist() {
       BEGIN
         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'obras' AND COLUMN_NAME = 'localizacao')
         BEGIN
+          -- Remove foreign key constraints first
+          DECLARE @sql NVARCHAR(MAX) = '';
+          SELECT @sql = @sql + 'ALTER TABLE ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) 
+                      + ' DROP CONSTRAINT ' + QUOTENAME(CONSTRAINT_NAME) + '; '
+          FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+          WHERE CONSTRAINT_TYPE = 'FOREIGN KEY' 
+            AND TABLE_NAME IN ('equipa_membros', 'equipa_obra', 'partes_diarias', 'registo_ponto');
+          
+          IF @sql <> ''
+          BEGIN
+            EXEC sp_executesql @sql;
+          END
+          
+          -- Now drop tables in correct order
           DROP TABLE IF EXISTS equipa_membros;
           DROP TABLE IF EXISTS equipa_obra;
           DROP TABLE IF EXISTS partes_diarias;
@@ -89,9 +103,10 @@ async function createTablesIfNotExist() {
       END
     `);
 
-    // Check if users table exists, if not create all tables
+    // Check if obras table exists with correct structure, if not recreate all tables
     await request.query(`
-      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='obras' AND xtype='U') 
+      OR NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'obras' AND COLUMN_NAME = 'localizacao')
       BEGIN
         -- Create users table
         CREATE TABLE users (
