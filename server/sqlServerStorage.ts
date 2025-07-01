@@ -278,11 +278,85 @@ export class SqlServerStorage implements IStorage {
   }
 
   async createRegistoPonto(registo: InsertRegistoPonto): Promise<RegistoPonto> {
-    throw new Error("Not implemented yet");
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const result = await pool.request()
+        .input('userId', registo.userId)
+        .input('data', registo.data)
+        .input('horaEntrada', registo.horaEntrada || null)
+        .input('horaSaida', registo.horaSaida || null)
+        .input('coordenadasEntrada', registo.coordenadasEntrada || null)
+        .input('coordenadasSaida', registo.coordenadasSaida || null)
+        .input('obraId', registo.obraId || null)
+        .query(`
+          INSERT INTO registo_ponto (userId, data, horaEntrada, horaSaida, coordenadasEntrada, coordenadasSaida, obraId)
+          OUTPUT INSERTED.*
+          VALUES (@userId, @data, @horaEntrada, @horaSaida, @coordenadasEntrada, @coordenadasSaida, @obraId)
+        `);
+      
+      return result.recordset[0];
+    } catch (error) {
+      console.error("Error creating registo ponto:", error);
+      throw error;
+    }
   }
 
   async updateRegistoPonto(id: number, registo: Partial<InsertRegistoPonto>): Promise<RegistoPonto> {
-    throw new Error("Not implemented yet");
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const updates: string[] = [];
+      const inputs: any = { id };
+      
+      if (registo.horaEntrada !== undefined) {
+        updates.push('horaEntrada = @horaEntrada');
+        inputs.horaEntrada = registo.horaEntrada;
+      }
+      if (registo.horaSaida !== undefined) {
+        updates.push('horaSaida = @horaSaida');
+        inputs.horaSaida = registo.horaSaida;
+      }
+      if (registo.coordenadasEntrada !== undefined) {
+        updates.push('coordenadasEntrada = @coordenadasEntrada');
+        inputs.coordenadasEntrada = registo.coordenadasEntrada;
+      }
+      if (registo.coordenadasSaida !== undefined) {
+        updates.push('coordenadasSaida = @coordenadasSaida');
+        inputs.coordenadasSaida = registo.coordenadasSaida;
+      }
+      if (registo.obraId !== undefined) {
+        updates.push('obraId = @obraId');
+        inputs.obraId = registo.obraId;
+      }
+      
+      if (updates.length === 0) {
+        throw new Error("No fields to update");
+      }
+      
+      const request = pool.request();
+      Object.keys(inputs).forEach(key => {
+        request.input(key, inputs[key]);
+      });
+      
+      const result = await request.query(`
+        UPDATE registo_ponto 
+        SET ${updates.join(', ')}
+        OUTPUT INSERTED.*
+        WHERE id = @id
+      `);
+      
+      if (result.recordset.length === 0) {
+        throw new Error("Registo not found");
+      }
+      
+      return result.recordset[0];
+    } catch (error) {
+      console.error("Error updating registo ponto:", error);
+      throw error;
+    }
   }
 
   async getEquipas(): Promise<(EquipaObra & { obra: Obra; encarregado: User; membros: (EquipaMembros & { user: User })[] })[]> {
@@ -298,15 +372,64 @@ export class SqlServerStorage implements IStorage {
   }
 
   async createEquipa(equipa: InsertEquipaObra): Promise<EquipaObra> {
-    throw new Error("Not implemented yet");
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const result = await pool.request()
+        .input('nome', equipa.nome)
+        .input('obraId', equipa.obraId)
+        .input('encarregadoId', equipa.encarregadoId)
+        .query(`
+          INSERT INTO equipa_obra (nome, obraId, encarregadoId)
+          OUTPUT INSERTED.*
+          VALUES (@nome, @obraId, @encarregadoId)
+        `);
+      
+      return result.recordset[0];
+    } catch (error) {
+      console.error("Error creating equipa:", error);
+      throw error;
+    }
   }
 
   async addMembroToEquipa(equipaMembro: InsertEquipaMembros): Promise<EquipaMembros> {
-    throw new Error("Not implemented yet");
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      const result = await pool.request()
+        .input('equipaId', equipaMembro.equipaId)
+        .input('userId', equipaMembro.userId)
+        .query(`
+          INSERT INTO equipa_membros (equipaId, userId)
+          OUTPUT INSERTED.*
+          VALUES (@equipaId, @userId)
+        `);
+      
+      return result.recordset[0];
+    } catch (error) {
+      console.error("Error adding member to equipa:", error);
+      throw error;
+    }
   }
 
   async removeMembroFromEquipa(equipaId: number, userId: string): Promise<void> {
-    throw new Error("Not implemented yet");
+    const pool = getSqlServerPool();
+    if (!pool) throw new Error("SQL Server not connected");
+    
+    try {
+      await pool.request()
+        .input('equipaId', equipaId)
+        .input('userId', userId)
+        .query(`
+          DELETE FROM equipa_membros 
+          WHERE equipaId = @equipaId AND userId = @userId
+        `);
+    } catch (error) {
+      console.error("Error removing member from equipa:", error);
+      throw error;
+    }
   }
 
   async getPartesDiarias(userId: string): Promise<(PartesDiarias & { obra: Obra })[]> {
